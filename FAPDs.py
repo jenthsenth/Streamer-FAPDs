@@ -7,24 +7,24 @@ import Solvers as s
 import Streamer_X as sx
 import Streamer_Y as sy
 
-# # Pick a specific streamer time and scenario
-# try:
-#     T = input('Enter the moment of time you want to examine: ')
-# except:
-#     print('Wrong input. Please enter a number ...')
+# Pick a specific streamer time and scenario
+try:
+    T = input('Enter the moment of time you want to examine: ')
+except:
+    print('Wrong input. Please enter a number ...')
 
-# xspecial, d, K0, xi, eta, Sigma0, sigma, beta = sx.Streamer_X(T)
-# Scos = sy.Streamer_Y(T,xspecial)
+xspecial, d, K0, xi, eta, Sigma0, sigma, beta = sx.Streamer_X(T)
+Scos = sy.Streamer_Y(T,xspecial)
 
-d = 0.14
-K0 = 0.385
-eta = 0.767
-Scos = 65
-Sigma0 = 6.0
+# d = 0.14
+# K0 = 0.385
+# eta = 0.767
+# Scos = 65
+# Sigma0 = 6.0
 
-sigma = 0.64
-beta = 3.6
-xi = 0.322
+# sigma = 0.64
+# beta = 3.6
+# xi = 0.322
 
 # print parameters
 # scale everything to give plot dimensions
