@@ -208,6 +208,8 @@ def Streamer_X(T):
     plt.title(r'Conductivity Profile at $x_s$ = ' + str(xs))
     plt.show()
     
+    # Sigma0 = np.min(Cond_array)
+    
     try:
         Sigma0 = float(input('Please enter the conductivity value corresponding to the flat region: '))
     except:
@@ -216,7 +218,10 @@ def Streamer_X(T):
     Sigmamax = np.max(Cond_array)
     sigma = (Sigmamax - Sigma0)/Sigma0
     
-    beta = float(input('Please enter a guess for beta (larger values are thinner bumps): '))
+    try:
+        beta = float(input('Please enter a guess for beta (larger values are thinner bumps): '))
+    except:
+        print('Wrong input. Please enter a number ...')
     
     def Cond(r):
         x = 1 + sigma * (np.sin(np.pi*r))**beta
