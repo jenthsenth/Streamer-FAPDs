@@ -4,8 +4,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import Solvers as s
-import Streamer_X as sx
-import Streamer_Y as sy
+import Streamer_X2 as sx
+import Streamer_Y2 as sy
+from textwrap import wrap
 
 # Pick a specific streamer time and scenario
 try:
@@ -13,34 +14,25 @@ try:
 except:
     print('Wrong input. Please enter a number ...')
 
-xspecial, d, K0, xi, eta, Sigma0, sigma, beta = sx.Streamer_X(T)
-Scos = sy.Streamer_Y(T,xspecial)
-
-# d = 0.14
-# K0 = 0.385
-# eta = 0.767
-# Scos = 65
-# Sigma0 = 6.0
-
-# sigma = 0.64
-# beta = 3.6
-# xi = 0.322
+xs, d, K0, xi, eta, Sigma0, sigma, beta = sx.Streamer_X(T)
+Scos, ys = sy.Streamer_Y(T,xs)
 
 # print parameters
-# scale everything to give plot dimensions
 # CHOOSE RESISTANCE
 # Use sys to make folder architecture better
 # Fix plot units and printed units
 
 RE = 6371009
 Phi0 = (eta/(eta+1))*np.pi*K0*Scos*d*RE/Sigma0
-E0amp = Phi0/RE
-J0 = Phi0*Sigma0/(d**2)/(RE**2)
-R0 = (d**2)*(RE**2)/Sigma0
+E0amp = Phi0/RE*1000
+J0 = Phi0*Sigma0/(d**2)/(RE**2)*(10**6)
+R0 = (d**2)*(RE**2)/Sigma0/10**6
 
-print('The dimensions for electric field are ',E0amp*1000,' mV / m.')
-print('The dimensions for current density are ',J0*10**6,' \mu A / m^2.')
-print('The dimensions for resistivity are ',R0/10**6,' M \Omega m^2.')
+ratio = 0.1
+
+print('The dimensions for ionospheric electric field are',E0amp,'mV / m.')
+print('The dimensions for current density are',J0,'\mu A / m^2.')
+print('The dimensions for resistivity are',R0,'M \Omega m^2.')
 
 # Import the specific effective potential RHS to the RKA algorithm
 def rhs(state,r):
@@ -97,15 +89,15 @@ def J(r):
     x = np.piecewise(r, [r < r0, np.logical_and(r >= r0, r < 0), np.logical_and(r >= 0, r < 1), r >= 1], [lambda r: 0, lambda r: g(r)/xi**2, lambda r: H(r), lambda r: 0])
     return x
 
-plt.figure(3); plt.clf()
-plt.plot(r_array,J0*J(r_array),'b-')
-plt.ylabel(r'$J_\parallel(r) \ \ (\ \mu A \,/ m^2)$'); plt.xlabel('r')
-plt.title('Field-Aligned Current')
-plt.grid('on')
+# plt.figure(4); plt.clf()
+# plt.plot(r_array,J0*J(r_array),'b-')
+# plt.ylabel(r'$J_\parallel(r) \ \ (\ \mu A \,/ m^2)$'); plt.xlabel('r')
+# plt.title('Field-Aligned Current')
+# plt.grid('on')
 
-# R = (1/R0)*np.float(input('Enter the resistivity (in M\Omega m^2): '))
+R = (1/R0)*np.float(input('Enter the resistivity (in M\Omega m^2): '))
 
-R = 0.1
+# R = 0.1
 
 # Perform RK4 algorithm to construct perturbation. Prime ' is r-derivative:
 # u'   =  w
@@ -126,10 +118,10 @@ while r < rf:
     drplot = np.append(drplot,dr)
     Eplot = np.append(Eplot,state[0])
 
-plt.figure(4); plt.clf()
+plt.figure(5); plt.clf()
 plt.plot(rplot,E0amp*Eplot,'b-')
 plt.ylabel(r'$E_i(r) \ (mV/m)$'); plt.xlabel('r')
-plt.title('Ionospheric Electric Field')
+plt.title('Ionospheric Electric Field at T = '+str(T))
 plt.grid('on')
 
 def Grad_J(r):
@@ -146,24 +138,24 @@ def k(r):
 
 GradJplot = Grad_J(rplot)
 
-plt.figure(5); plt.clf()
-plt.plot(rplot,R*GradJplot,'b-')
-plt.ylabel(r'$R * \partial_r \, J_\parallel ()$'); plt.xlabel('r')
-plt.title('FAC Derivative')
-plt.grid('on')
+# plt.figure(6); plt.clf()
+# plt.plot(rplot,R*GradJplot,'b-')
+# plt.ylabel(r'$R * \partial_r \, J_\parallel ()$'); plt.xlabel('r')
+# plt.title('FAC Derivative')
+# plt.grid('on')
 
 GradJplot[GradJplot > 0] = 0
 
 Emplot = Eplot + R*GradJplot
 
-plt.figure(6); plt.clf()
-plt.plot(rplot,E0amp*Emplot,'b-')
+plt.figure(7); plt.clf()
+plt.plot(rplot,ratio*E0amp*Emplot,'b-')
 plt.ylabel(r'$E_m(r) \ (mV/m)$'); plt.xlabel('r')
-plt.title('Magnetospheric Electric Field')
+plt.title("\n".join(wrap('Magnetospheric Electric Field at T = '+str(T)+r' for Resistivity $\tilde{R}$ = '+str(R*R0)+r' $M\Omega \, m^2$',60)))
 plt.grid('on')
 
-# plt.figure(7); plt.clf()
-# plt.plot(rplot,R*J(rplot),'b-')
+# plt.figure(8); plt.clf()
+# plt.plot(rplot,R0*J0*R*J(rplot),'b-')
 # plt.ylabel(r'$\Delta \Phi(r)$'); plt.xlabel('r')
 # plt.title('Field-Aligned Potential Drop')
 # plt.grid('on')
