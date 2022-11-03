@@ -17,10 +17,15 @@ except:
 xs, d, K0, xi, eta, Sigma0, sigma, beta = sx.Streamer_X(T)
 Scos, ys = sy.Streamer_Y(T,xs)
 
-# print parameters
-# CHOOSE RESISTANCE
-# Use sys to make folder architecture better
-# Fix plot units and printed units
+print('(xs,ys) = (' + str(xs) + ',' + str(ys) + ')')
+print('The streamer width d = ' + str(d) + 'R_E')
+print('The entropy magnitude K0 = ' + str(K0) + ' nPa (R_E/nT)^5/3')
+print('The asymmetry factor xi = ' + str(xi))
+print('The factor eta = ' + str(eta))
+print('The background Pedersen conductance is Sigma0 = ' + str(Sigma0) + ' S')
+print('The conductivity enhancement factor is sigma = ' + str(sigma))
+print('The conductivity width factor is beta = ' + str(beta))
+print('The FTV factor Scos(zeta) = ' + str(Scos) + ' R_E/nT')
 
 RE = 6371009
 Phi0 = (eta/(eta+1))*np.pi*K0*Scos*d*RE/Sigma0
@@ -97,8 +102,6 @@ def J(r):
 
 R = (1/R0)*np.float(input('Enter the resistivity (in M\Omega m^2): '))
 
-# R = 0.1
-
 # Perform RK4 algorithm to construct perturbation. Prime ' is r-derivative:
 # u'   =  w
 # w' = -Veff(r)*u
@@ -137,13 +140,6 @@ def k(r):
     return x
 
 GradJplot = Grad_J(rplot)
-
-# plt.figure(6); plt.clf()
-# plt.plot(rplot,R*GradJplot,'b-')
-# plt.ylabel(r'$R * \partial_r \, J_\parallel ()$'); plt.xlabel('r')
-# plt.title('FAC Derivative')
-# plt.grid('on')
-
 GradJplot[GradJplot > 0] = 0
 
 Emplot = Eplot + R*GradJplot
@@ -154,8 +150,10 @@ plt.ylabel(r'$E_m(r) \ (mV/m)$'); plt.xlabel('r')
 plt.title("\n".join(wrap('Magnetospheric Electric Field at T = '+str(T)+r' for Resistivity $R$ = '+str(R*R0)+r' $M\Omega \, m^2$',60)))
 plt.grid('on')
 
-plt.figure(8); plt.clf()
-plt.plot(rplot,R0*J0*R*Grad_J(rplot)/d,'b-')
-plt.ylabel(r'$\Delta \Phi(r)$'); plt.xlabel('r')
-plt.title('Field-Aligned Potential Drop')
-plt.grid('on')
+# plt.figure(8); plt.clf()
+# plt.plot(rplot,R0*J0*R*Grad_J(rplot)/d,'b-')
+# plt.ylabel(r'$\Delta \Phi(r)$'); plt.xlabel('r')
+# plt.title('Field-Aligned Potential Drop')
+# plt.grid('on')
+
+# Use sys to make folder architecture better

@@ -105,12 +105,10 @@ def Streamer_Y(T,xs):
         print('Wrong input. Please enter a number ...')
     
     ys = yion[0,iy]
-    # brat = brat[0,iy]
     
     # Define and plot the RCM-E fields for the chosen slice
     x_array = np.flip(xion[:,iy])
     Vm_array = np.flip(vm[:,iy])
-    # brat_array = np.flip(brat[:,iy])
     
     Vgrad_array = np.zeros(ny)
     for i in range(ny-1):
@@ -137,7 +135,7 @@ def Streamer_Y(T,xs):
     plt.plot(x_array,Vgrad_array,'b-',label = 'RCM-E')
     plt.plot(x_array,Vgradanalytic,'r-', label = 'Analytic')
     plt.legend(); plt.grid('on'); plt.ylabel(r'$\nabla V^{-2/3} (x)$'); plt.xlabel(r'$x_i$')
-    plt.title('FTV Gradient Profile')
+    plt.title(r'FTV Gradient Profile at $y_s$ = ' + str(ys))
     plt.show()
     
     return Scos, ys

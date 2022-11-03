@@ -129,8 +129,6 @@ def Streamer_X(T):
     def Cond(y):
         x = np.interp(y,y_array,Cond_array)
         return x
-    def Bmin(y):
-        x = np.interp(y,y_array,Bmin_array)
     
     plt.figure(6); plt.clf()
     plt.plot(y_array,K_array)
@@ -200,14 +198,14 @@ def Streamer_X(T):
     plt.plot(rnew,Knew,'b-',label = 'RCM-E')
     plt.plot(r_array,Kanalytic(r_array),'r-', label = 'Analytic')
     plt.legend(); plt.grid('on'); plt.ylabel(r'$K(r)$'); plt.xlabel(r'$r$')
-    plt.title('Entropy Profile')
+    plt.title(r'Entropy Profile at $x_s$ = ' + str(xs))
     plt.show()
     
     # Pedersen conductivity (fixes sigma)
     plt.figure(10); plt.clf()
     plt.plot(r_array,Cond_array,'b-')
     plt.grid('on'); plt.ylabel(r'$\Sigma(r)$'); plt.xlabel(r'$r$')
-    plt.title('Conductivity Profile')
+    plt.title(r'Conductivity Profile at $x_s$ = ' + str(xs))
     plt.show()
     
     try:
@@ -232,13 +230,13 @@ def Streamer_X(T):
     plt.plot(r_array,Cond_array,'b-',label = 'RCM-E')
     plt.plot(r_array,Condanalytic(r_array),'r-', label = 'Analytic')
     plt.legend(); plt.grid('on'); plt.ylabel(r'$\Sigma(r)$'); plt.xlabel(r'$r$')
-    plt.title('Conductivity Profile')
+    plt.title(r'Conductivity Profile at $x_s$ = ' + str(xs))
     plt.show()
 
     return xs, d, K0, xi, eta, Sigma0, sigma, beta
 
-# # if you select wrong, re-prompt
-# # Automate 1 or both sides of y-boundary determination.
-# # Reprompt for beta
-# # Automate Sigma0
-# # Legends
+# if you select wrong, re-prompt
+# Automate 1 or both sides of y-boundary determination.
+# Reprompt for beta
+# Automate Sigma0
+# Legends
