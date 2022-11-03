@@ -43,6 +43,38 @@ def Streamer_Y(T,xs):
     btotrat = data[:,57].reshape((int(ndim/nslices),nslices))
     
     ny = int(np.sqrt(yion.size))
+    nbadL = 48
+    ny = int(np.sqrt(yion.size)) - nbadL
+    
+    # higher ny causes problems because of chopped values in RCM
+    
+    xmag = xmag[nbadL:]
+    ymag = ymag[nbadL:]
+    vm = vm[nbadL:]
+    ftv = ftv[nbadL:]
+    bmin = bmin[nbadL:]
+    v = v[nbadL:]
+    birk = birk[nbadL:]
+    pedlam = pedlam[nbadL:]
+    hall = hall[nbadL:]
+    eflux = eflux[nbadL:]
+    N = N[nbadL:]
+    Temp = Temp[nbadL:]
+    P = P[nbadL:]
+    k = k[nbadL:]
+    Ne = Ne[nbadL:]
+    Tempe = Tempe[nbadL:]
+    Pe = Pe[nbadL:]
+    ke = ke[nbadL:]
+    Ni = Ni[nbadL:]
+    Tempi = Tempi[nbadL:]
+    Pi = Pi[nbadL:]
+    ki = ki[nbadL:]
+    xion = xion[nbadL:]
+    yion = yion[nbadL:]
+    brat = brat[nbadL:]
+    edistrat = edistrat[nbadL:]
+    btotrat = btotrat[nbadL:]
     
     # Plot the RCM-E fields for all slices at the given time step
     plt.figure(1); plt.clf()
@@ -50,7 +82,6 @@ def Streamer_Y(T,xs):
         plt.plot(xion[:,i],k[:,i],label='x = ' + str(yion[i,0]))
     plt.grid(); plt.ylabel('k'); plt.xlabel(r'$x_i$')
     plt.title(filein)
-    # plt.legend()
     plt.show()
     
     plt.figure(2); plt.clf()
@@ -58,7 +89,6 @@ def Streamer_Y(T,xs):
         plt.plot(xion[:,i],ftv[:,i],label='x = ' + str(yion[0,i]))
     plt.grid(); plt.ylabel('ftv'); plt.xlabel(r'$x_i$')
     plt.title(filein)
-    # plt.legend()
     plt.show()
     
     plt.figure(3); plt.clf()
@@ -66,32 +96,7 @@ def Streamer_Y(T,xs):
         plt.plot(xion[:,i],pedlam[:,i],label='x = ' + str(yion[i,0]))
     plt.grid(); plt.ylabel('pedlam'); plt.xlabel(r'$x_i$')
     plt.title(filein)
-    # plt.legend()
     plt.show()
-    
-    # plt.figure(4); plt.clf()
-    # for i in range(ny):
-    #     plt.plot(xion[:,i],np.sqrt(brat[:,i]),label='x = ' + str(yion[i,0]))
-    # plt.grid(); plt.ylabel('Sqrt brat'); plt.xlabel(r'$x_i$')
-    # plt.title(filein)
-    # # plt.legend()
-    # plt.show()
-    
-    # plt.figure(5); plt.clf()
-    # for i in range(ny):
-    #     plt.plot(xion[:,i],edistrat[:,i],label='x = ' + str(yion[i,0]))
-    # plt.grid(); plt.ylabel('edistrat'); plt.xlabel(r'$x_i$')
-    # plt.title(filein)
-    # # plt.legend()
-    # plt.show()
-    
-    # plt.figure(6); plt.clf()
-    # for i in range(ny):
-    #     plt.plot(xion[:,i],np.sqrt(btotrat[:,i]),label='x = ' + str(yion[i,0]))
-    # plt.grid(); plt.ylabel('Sqrt btotrat'); plt.xlabel(r'$x_i$')
-    # plt.title(filein)
-    # # plt.legend()
-    # plt.show()
     
     # Choose Y-slice
     try:
@@ -134,7 +139,5 @@ def Streamer_Y(T,xs):
     plt.legend(); plt.grid('on'); plt.ylabel(r'$\nabla V^{-2/3} (x)$'); plt.xlabel(r'$x_i$')
     plt.title('FTV Gradient Profile')
     plt.show()
-    
-    # print('Note: These values only need to match at the X-slice of interest.')
     
     return Scos, ys
