@@ -95,26 +95,19 @@ def Streamer_X(T):
     plt.title(filein)
     plt.show()
     
-    # plt.figure(4); plt.clf()
-    # for i in range(nx):
-    #     plt.plot(yion[i,:],np.sqrt(brat[i,:]),label='x = ' + str(xion[i,0]))
-    # plt.grid(); plt.ylabel('Sqrt brat'); plt.xlabel(r'$y_i$')
-    # plt.title(filein)
-    # plt.show()
-    
     plt.figure(4); plt.clf()
     for i in range(nx):
-        plt.plot(yion[i,:],bmin[i,:],label='x = ' + str(xion[i,0]))
-    plt.grid(); plt.ylabel('bmin'); plt.xlabel(r'$y_i$')
+        plt.plot(yion[i,:],np.sqrt(brat[i,:]),label='x = ' + str(xion[i,0]))
+    plt.grid(); plt.ylabel('Sqrt brat'); plt.xlabel(r'$y_i$')
     plt.title(filein)
     plt.show()
     
-    # plt.figure(5); plt.clf()
-    # for i in range(nx):
-    #     plt.plot(yion[i,:],np.sqrt(btotrat[i,:]),label='x = ' + str(xion[i,0]))
-    # plt.grid(); plt.ylabel('Sqrt btotrat'); plt.xlabel(r'$y_i$')
-    # plt.title(filein)
-    # plt.show()
+    plt.figure(4); plt.clf()
+    for i in range(nx):
+        plt.plot(yion[i,:],edistrat[i,:],label='x = ' + str(xion[i,0]))
+    plt.grid(); plt.ylabel('Edistrat'); plt.xlabel(r'$y_i$')
+    plt.title(filein)
+    plt.show()
     
     # Choose X-slice
     try:
