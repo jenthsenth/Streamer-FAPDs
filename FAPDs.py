@@ -33,7 +33,21 @@ E0amp = Phi0/RE*1000
 J0 = Phi0*Sigma0/(d**2)/(RE**2)*(10**6)
 R0 = (d**2)*(RE**2)/Sigma0/10**6
 
-ratio = 0.1
+# how is the magnetospheric field to be made ~ 10 mV/m (1 mV/m??)
+# our ionospheric electric field values seem low (should be ~ 50 mV/m...check) (10s of mV/m??)
+# ratios may be inverted
+# Mapping ratio or not??
+
+# should E0amp have an extra factor of d?
+
+# ~ 1 km/s ionosphere
+
+# solve phi equation first, make contour plot, determine direction and magnitude of field?
+
+# possible mistake with Br ~ M (units of R_E?)
+
+
+ratio = 1
 
 print('The dimensions for ionospheric electric field are',E0amp,'mV / m.')
 print('The dimensions for current density are',J0,'\mu A / m^2.')
@@ -94,11 +108,11 @@ def J(r):
     x = np.piecewise(r, [r < r0, np.logical_and(r >= r0, r < 0), np.logical_and(r >= 0, r < 1), r >= 1], [lambda r: 0, lambda r: g(r)/xi**2, lambda r: H(r), lambda r: 0])
     return x
 
-# plt.figure(4); plt.clf()
-# plt.plot(r_array,J0*J(r_array),'b-')
-# plt.ylabel(r'$J_\parallel(r) \ \ (\ \mu A \,/ m^2)$'); plt.xlabel('r')
-# plt.title('Field-Aligned Current')
-# plt.grid('on')
+plt.figure(4); plt.clf()
+plt.plot(r_array,J0*J(r_array),'b-')
+plt.ylabel(r'$J_\parallel(r) \ \ (\ \mu A \,/ m^2)$'); plt.xlabel('r')
+plt.title('Field-Aligned Current')
+plt.grid('on')
 
 R = (1/R0)*np.float(input('Enter the resistivity (in M\Omega m^2): '))
 
@@ -127,6 +141,8 @@ plt.ylabel(r'$E_i(r) \ (mV/m)$'); plt.xlabel('r')
 plt.title('Ionospheric Electric Field at T = '+str(T))
 plt.grid('on')
 
+# extra factor of d
+
 def Grad_J(r):
     x = np.piecewise(r, [r < r0, np.logical_and(r >= r0, r < 0), np.logical_and(r >= 0, r < 1), r >= 1], [lambda r: 0, lambda r: j(r), lambda r: k(r), lambda r: 0])
     return x
@@ -142,18 +158,64 @@ def k(r):
 GradJplot = Grad_J(rplot)
 GradJplot[GradJplot > 0] = 0
 
-Emplot = Eplot + R*GradJplot
+Emplot = E0amp*Eplot + R0*J0*R*GradJplot/RE*1000
 
 plt.figure(7); plt.clf()
-plt.plot(rplot,ratio*E0amp*Emplot,'b-')
+plt.plot(rplot,ratio*Emplot,'b-')
 plt.ylabel(r'$E_m(r) \ (mV/m)$'); plt.xlabel('r')
 plt.title("\n".join(wrap('Magnetospheric Electric Field at T = '+str(T)+r' for Resistivity $R$ = '+str(R*R0)+r' $M\Omega \, m^2$',60)))
 plt.grid('on')
 
-# plt.figure(8); plt.clf()
-# plt.plot(rplot,R0*J0*R*Grad_J(rplot)/d,'b-')
-# plt.ylabel(r'$\Delta \Phi(r)$'); plt.xlabel('r')
-# plt.title('Field-Aligned Potential Drop')
-# plt.grid('on')
+Jplot = J(rplot)
+Jplot[Jplot > 0] = 0
+
+plt.figure(8); plt.clf()
+plt.plot(rplot,R0*J0*R*Jplot/1000,'b-')
+plt.ylabel(r'$\Delta \Phi(r) \, (kV)$'); plt.xlabel('r')
+plt.title("\n".join(wrap('Field-Aligned Potential Drop at T = '+str(T)+r' for Resistivity $R$ = '+str(R*R0)+r' $M\Omega \, m^2$',60)))
+plt.grid('on')
 
 # Use sys to make folder architecture better
+
+# compute potential
+potential = np.zeros(rplot.size)
+for i in range(rplot.size-1):
+    dr = rplot[i+1]-rplot[i]
+    # E is in mV/m
+    potential[i+1] = potential[i]-dr*(Eplot[i]+Eplot[i+1])/2
+
+potentialm = Phi0*potential + R*R0*J0*np.where(J(rplot)<0,J(rplot),0)
+
+plt.figure(9); plt.clf()
+plt.plot(rplot,potential*Phi0/1000,'b-')
+plt.plot(rplot,potentialm/1000,'g-')
+plt.ylabel(r'$\Phi(r) \, (kV)$'); plt.xlabel('r')
+plt.title("\n".join(wrap('Magnetospheric and Ionospheric Potentials at T = '+str(T)+r' for Resistivity $R$ = '+str(R*R0)+r' $M\Omega \, m^2$',60)))
+plt.grid('on')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

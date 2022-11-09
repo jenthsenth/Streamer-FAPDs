@@ -149,8 +149,8 @@ def Streamer_X(T):
     plt.show()
     
     # Shift y-boundaries
-    y0new = float(input('Enter a new y_0: '))
-    yfnew = float(input('Enter a new y_f: '))
+    y0new = float(input('Enter a new y_0 (for LHS of entropy depletion): '))
+    yfnew = float(input('Enter a new y_f (for RHS of entropy depletion): '))
     
     ynew = np.linspace(y0new,yfnew,1000)
     d = yfnew - y0new
@@ -211,7 +211,7 @@ def Streamer_X(T):
     # Sigma0 = np.min(Cond_array)
     
     try:
-        Sigma0 = float(input('Please enter the conductivity value corresponding to the flat region: '))
+        Sigma0 = float(input('Please enter the conductivity value corresponding to the flat region (or minimum conductivity): '))
     except:
         print('Wrong input. Please enter a number ...')
     
