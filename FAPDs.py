@@ -14,8 +14,8 @@ try:
 except:
     print('Wrong input. Please enter a number ...')
 
-xs, d, K0, xi, eta, Sigma0, sigma, beta = sx.Streamer_X(T)
-Scos, ys = sy.Streamer_Y(T,xs)
+xs, d, K0, xi, eta, Sigma0, sigma, beta, dyg = sx.Streamer_X(T)
+Scos, ys, Erat = sy.Streamer_Y(T,xs)
 
 print('(xs,ys) = (' + str(xs) + ',' + str(ys) + ')')
 print('The streamer width d = ' + str(d) + 'R_E')
@@ -29,7 +29,8 @@ print('The FTV factor Scos(zeta) = ' + str(Scos) + ' R_E/nT')
 
 RE = 6371009
 Phi0 = (eta/(eta+1))*np.pi*K0*Scos*d*RE/Sigma0
-E0amp = Phi0/RE*1000
+
+E0amp = Phi0/(dyg*RE)*1000
 J0 = Phi0*Sigma0/(d**2)/(RE**2)*(10**6)
 R0 = (d**2)*(RE**2)/Sigma0/10**6
 
@@ -47,7 +48,7 @@ R0 = (d**2)*(RE**2)/Sigma0/10**6
 # possible mistake with Br ~ M (units of R_E?)
 
 
-ratio = 1
+ratio = Erat
 
 print('The dimensions for ionospheric electric field are',E0amp,'mV / m.')
 print('The dimensions for current density are',J0,'\mu A / m^2.')
@@ -110,7 +111,7 @@ def J(r):
 
 plt.figure(4); plt.clf()
 plt.plot(r_array,J0*J(r_array),'b-')
-plt.ylabel(r'$J_\parallel(r) \ \ (\ \mu A \,/ m^2)$'); plt.xlabel('r')
+plt.ylabel(r'$J_\parallel(r) \ \ (\ \mu A \, / m^2)$'); plt.xlabel('r')
 plt.title('Field-Aligned Current')
 plt.grid('on')
 
@@ -138,7 +139,7 @@ while r < rf:
 plt.figure(5); plt.clf()
 plt.plot(rplot,E0amp*Eplot,'b-')
 plt.ylabel(r'$E_i(r) \ (mV/m)$'); plt.xlabel('r')
-plt.title('Ionospheric Electric Field at T = '+str(T))
+plt.title('Ionospheric Electric Field at T = ' + str(T))
 plt.grid('on')
 
 # extra factor of d
@@ -158,12 +159,12 @@ def k(r):
 GradJplot = Grad_J(rplot)
 GradJplot[GradJplot > 0] = 0
 
-Emplot = E0amp*Eplot + R0*J0*R*GradJplot/RE*1000
+Emplot = E0amp*Eplot + R0*J0*R*GradJplot/(dyg*RE)*1000
 
 plt.figure(7); plt.clf()
 plt.plot(rplot,ratio*Emplot,'b-')
 plt.ylabel(r'$E_m(r) \ (mV/m)$'); plt.xlabel('r')
-plt.title("\n".join(wrap('Magnetospheric Electric Field at T = '+str(T)+r' for Resistivity $R$ = '+str(R*R0)+r' $M\Omega \, m^2$',60)))
+plt.title("\n".join(wrap('Magnetospheric Electric Field at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0) + r' $M\Omega \, m^2$',60)))
 plt.grid('on')
 
 Jplot = J(rplot)
@@ -172,7 +173,7 @@ Jplot[Jplot > 0] = 0
 plt.figure(8); plt.clf()
 plt.plot(rplot,R0*J0*R*Jplot/1000,'b-')
 plt.ylabel(r'$\Delta \Phi(r) \, (kV)$'); plt.xlabel('r')
-plt.title("\n".join(wrap('Field-Aligned Potential Drop at T = '+str(T)+r' for Resistivity $R$ = '+str(R*R0)+r' $M\Omega \, m^2$',60)))
+plt.title("\n".join(wrap('Field-Aligned Potential Drop at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0) + r' $M\Omega \, m^2$',60)))
 plt.grid('on')
 
 # Use sys to make folder architecture better
@@ -181,16 +182,16 @@ plt.grid('on')
 potential = np.zeros(rplot.size)
 for i in range(rplot.size-1):
     dr = rplot[i+1]-rplot[i]
-    # E is in mV/m
     potential[i+1] = potential[i]-dr*(Eplot[i]+Eplot[i+1])/2
 
-potentialm = Phi0*potential + R*R0*J0*np.where(J(rplot)<0,J(rplot),0)
+potentialm = (E0amp*dyg*RE)*potential + R*R0*J0*np.where(J(rplot)<0,J(rplot),0)*1000
 
 plt.figure(9); plt.clf()
-plt.plot(rplot,potential*Phi0/1000,'b-')
+plt.plot(rplot,potential*(E0amp*dyg*RE)/1000,'b-')
 plt.plot(rplot,potentialm/1000,'g-')
 plt.ylabel(r'$\Phi(r) \, (kV)$'); plt.xlabel('r')
-plt.title("\n".join(wrap('Magnetospheric and Ionospheric Potentials at T = '+str(T)+r' for Resistivity $R$ = '+str(R*R0)+r' $M\Omega \, m^2$',60)))
+plt.legend(['potential', 'potentialm'])
+plt.title("\n".join(wrap('Magnetospheric and Ionospheric Potentials at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0) + r' $M\Omega \, m^2$',60)))
 plt.grid('on')
 
 

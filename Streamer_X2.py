@@ -162,9 +162,9 @@ def Streamer_X(T):
     Kmin = np.min(Knew)
     imin = np.argmin(Knew)
     ymin = ynew[imin]
-    rescale = ynew[-1] - ymin
-    rnew = ynew/rescale
-    rmin = ymin/rescale
+    dyg = ynew[-1] - ymin
+    rnew = ynew/dyg
+    rmin = ymin/dyg
     rmin_array = rmin*np.ones(1000)
     rnew = rnew - rmin_array
     
@@ -238,7 +238,7 @@ def Streamer_X(T):
     plt.title(r'Conductivity Profile at $x_s$ = ' + str(xs))
     plt.show()
 
-    return xs, d, K0, xi, eta, Sigma0, sigma, beta
+    return xs, d, K0, xi, eta, Sigma0, sigma, beta, dyg
 
 # if you select wrong, re-prompt
 # Automate 1 or both sides of y-boundary determination.

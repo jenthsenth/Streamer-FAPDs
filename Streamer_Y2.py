@@ -109,6 +109,7 @@ def Streamer_Y(T,xs):
     # Define and plot the RCM-E fields for the chosen slice
     x_array = np.flip(xion[:,iy])
     Vm_array = np.flip(vm[:,iy])
+    Edistrat_array = np.flip(edistrat[:,iy])
     
     Vgrad_array = np.zeros(ny)
     for i in range(ny-1):
@@ -138,4 +139,19 @@ def Streamer_Y(T,xs):
     plt.title(r'FTV Gradient Profile at $y_s$ = ' + str(ys))
     plt.show()
     
-    return Scos, ys
+    # Euclidean Mapping Ratio
+    
+    def Erat(x):
+        y = np.interp(x,x_array,Edistrat_array)
+        return y
+    
+    Erat = Erat(xs)
+    
+    plt.figure(9); plt.clf()
+    plt.plot(x_array,Vgrad_array,'b-',label = 'RCM-E')
+    plt.plot(x_array,Vgradanalytic,'r-', label = 'Analytic')
+    plt.legend(); plt.grid('on'); plt.ylabel(r'$\nabla V^{-2/3} (x)$'); plt.xlabel(r'$x_i$')
+    plt.title(r'FTV Gradient Profile at $y_s$ = ' + str(ys))
+    plt.show()
+    
+    return Scos, ys, Erat
