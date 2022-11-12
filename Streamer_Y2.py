@@ -122,7 +122,7 @@ def Streamer_Y(T,xs):
     
     plt.figure(7); plt.clf()
     plt.plot(x_array,Vgrad_array)
-    plt.grid(); plt.ylabel(r'$\nabla V^{-2/3} (x)$'); plt.xlabel(r'$x_i$')
+    plt.grid(); plt.ylabel(r'$\left[ \nabla V^{-2/3} \right]_x (x)$'); plt.xlabel(r'$x_i$')
     plt.title(r'Vgrad Term at $T = $' + str(T) + ' and $Y = $' + str(ys))
     plt.show()
     

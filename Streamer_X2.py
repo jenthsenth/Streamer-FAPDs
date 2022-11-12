@@ -95,17 +95,24 @@ def Streamer_X(T):
     plt.title(filein)
     plt.show()
     
-    plt.figure(4); plt.clf()
-    for i in range(nx):
-        plt.plot(yion[i,:],np.sqrt(brat[i,:]),label='x = ' + str(xion[i,0]))
-    plt.grid(); plt.ylabel('Sqrt brat'); plt.xlabel(r'$y_i$')
-    plt.title(filein)
-    plt.show()
+    # plt.figure(4); plt.clf()
+    # for i in range(nx):
+    #     plt.plot(yion[i,:],np.sqrt(brat[i,:]),label='x = ' + str(xion[i,0]))
+    # plt.grid(); plt.ylabel('Sqrt brat'); plt.xlabel(r'$y_i$')
+    # plt.title(filein)
+    # plt.show()
     
     plt.figure(4); plt.clf()
     for i in range(nx):
         plt.plot(yion[i,:],edistrat[i,:],label='x = ' + str(xion[i,0]))
     plt.grid(); plt.ylabel('Edistrat'); plt.xlabel(r'$y_i$')
+    plt.title(filein)
+    plt.show()
+    
+    plt.figure(5); plt.clf()
+    for i in range(nx):
+        plt.plot(ymag[i,:],k[i,:],label='x = ' + str(xion[i,0]))
+    plt.grid(); plt.ylabel('k'); plt.xlabel(r'$y_i$')
     plt.title(filein)
     plt.show()
     
@@ -119,6 +126,7 @@ def Streamer_X(T):
     
     # Define and plot the RCM-E fields for the chosen slice
     y_array = yion[ix,:]
+    ym_array = ymag[ix,:]
     K_array = k[ix,:]
     Cond_array = pedlam[ix,:]
     Bmin_array = bmin[ix,:]
@@ -128,6 +136,9 @@ def Streamer_X(T):
         return x
     def Cond(y):
         x = np.interp(y,y_array,Cond_array)
+        return x
+    def ymag(y):
+        x = np.interp(y,y_array,ym_array)
         return x
     
     plt.figure(6); plt.clf()
@@ -148,12 +159,19 @@ def Streamer_X(T):
     plt.title(r'Bmin at $T = $' + str(T) + ' and $X = $' + str(xs))
     plt.show()
     
+    plt.figure(9); plt.clf()
+    plt.plot(y_array,ym_array)
+    plt.grid(); plt.ylabel(r'$Bmin(y)$'); plt.xlabel(r'$y$')
+    plt.title(r'Bmin at $T = $' + str(T) + ' and $X = $' + str(xs))
+    plt.show()
+    
     # Shift y-boundaries
     y0new = float(input('Enter a new y_0 (for LHS of entropy depletion): '))
     yfnew = float(input('Enter a new y_f (for RHS of entropy depletion): '))
     
     ynew = np.linspace(y0new,yfnew,1000)
     d = yfnew - y0new
+    dm = ymag(yfnew) - ymag(y0new)
     
     Knew = K(ynew)
     Cond_array = Cond(ynew)
@@ -194,7 +212,7 @@ def Streamer_X(T):
         x = K0 * np.piecewise(r, [r < r0, np.logical_and(r >= r0, r < 0), np.logical_and(r >= 0, r < 1), r >= 1], [lambda r: 1, lambda r: KL(r), lambda r: KR(r), lambda r: 1])
         return x
     
-    plt.figure(9); plt.clf()
+    plt.figure(10); plt.clf()
     plt.plot(rnew,Knew,'b-',label = 'RCM-E')
     plt.plot(r_array,Kanalytic(r_array),'r-', label = 'Analytic')
     plt.legend(); plt.grid('on'); plt.ylabel(r'$K(r)$'); plt.xlabel(r'$r$')
@@ -202,7 +220,7 @@ def Streamer_X(T):
     plt.show()
     
     # Pedersen conductivity (fixes sigma)
-    plt.figure(10); plt.clf()
+    plt.figure(11); plt.clf()
     plt.plot(r_array,Cond_array,'b-')
     plt.grid('on'); plt.ylabel(r'$\Sigma(r)$'); plt.xlabel(r'$r$')
     plt.title(r'Conductivity Profile at $x_s$ = ' + str(xs))
@@ -231,14 +249,16 @@ def Streamer_X(T):
         x = Sigma0 * np.piecewise(r, [r < 0, np.logical_and(r >= 0, r < 1), r >= 1], [lambda r: 1, lambda r: Cond(r), lambda r: 1])
         return x
     
-    plt.figure(11); plt.clf()
+    plt.figure(12); plt.clf()
     plt.plot(r_array,Cond_array,'b-',label = 'RCM-E')
     plt.plot(r_array,Condanalytic(r_array),'r-', label = 'Analytic')
     plt.legend(); plt.grid('on'); plt.ylabel(r'$\Sigma(r)$'); plt.xlabel(r'$r$')
     plt.title(r'Conductivity Profile at $x_s$ = ' + str(xs))
     plt.show()
+    
 
-    return xs, d, K0, xi, eta, Sigma0, sigma, beta, dyg
+
+    return xs, d, K0, xi, eta, Sigma0, sigma, beta, dyg, dm
 
 # if you select wrong, re-prompt
 # Automate 1 or both sides of y-boundary determination.

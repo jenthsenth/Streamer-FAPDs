@@ -14,53 +14,61 @@ try:
 except:
     print('Wrong input. Please enter a number ...')
 
-xs, d, K0, xi, eta, Sigma0, sigma, beta, dyg = sx.Streamer_X(T)
+xs, d, K0, xi, eta, Sigma0, sigma, beta, dyg, dm = sx.Streamer_X(T)
 Scos, ys, Erat = sy.Streamer_Y(T,xs)
 
 print('(xs,ys) = (' + str(xs) + ',' + str(ys) + ')')
 print('The streamer width d = ' + str(d) + 'R_E')
+print('The bubble width dmag = ' + str(dm) + 'R_E')
 print('The entropy magnitude K0 = ' + str(K0) + ' nPa (R_E/nT)^5/3')
 print('The asymmetry factor xi = ' + str(xi))
 print('The factor eta = ' + str(eta))
 print('The background Pedersen conductance is Sigma0 = ' + str(Sigma0) + ' S')
 print('The conductivity enhancement factor is sigma = ' + str(sigma))
 print('The conductivity width factor is beta = ' + str(beta))
-print('The FTV factor Scos(zeta) = ' + str(Scos) + ' R_E/nT')
+print('The FTV factor Scos(zeta) = ' + str(Scos) + ' 1/nT \, (R_E/nT)^(-5/3)')
+
+
+drat = d/dm
+# ratio = Erat
+ratio = drat
+# ratio = 1
 
 RE = 6371009
-Phi0 = (eta/(eta+1))*np.pi*K0*Scos*d*RE/Sigma0
+d = d*RE
+dyg = dyg*RE
 
-E0amp = Phi0/(dyg*RE)*1000
-J0 = Phi0*Sigma0/(d**2)/(RE**2)*(10**6)
-R0 = (d**2)*(RE**2)/Sigma0/10**6
+Phi0 = (eta/(eta+1))*np.pi*K0*Scos*d/Sigma0
+R0 = (d**2)/Sigma0
+J0 = Phi0/R0
+E0amp = Phi0/dyg
 
-# how is the magnetospheric field to be made ~ 10 mV/m (1 mV/m??)
-# our ionospheric electric field values seem low (should be ~ 50 mV/m...check) (10s of mV/m??)
-# ratios may be inverted
-# Mapping ratio or not??
+# FACs should be ~< 25 \muA/m^2
+# PCP ~ 50 kV
+# FAPD should be ~ 1-10 kV
+# Magnetospheric field should be ~ 1-10 mV/m
+# Ionospheric field should be ~ 10-50 mV/m
 
-# should E0amp have an extra factor of d?
+# Bubble width ~ 1-3 R_E
+# Streamer width ~ 10-100 km (??)
 
-# ~ 1 km/s ionosphere
+# B_min ~< 10 nT
+# v_BBF ~ 300-400 km/s
+# v_str ~ 1 km/s
 
 # solve phi equation first, make contour plot, determine direction and magnitude of field?
 
-# possible mistake with Br ~ M (units of R_E?)
-
-
-ratio = Erat
-
-print('The dimensions for ionospheric electric field are',E0amp,'mV / m.')
-print('The dimensions for current density are',J0,'\mu A / m^2.')
-print('The dimensions for resistivity are',R0,'M \Omega m^2.')
+print('The dimensions for potential are',Phi0/1000,'kV.')
+print('The dimensions for ionospheric electric field are',E0amp*1000,'mV / m.')
+print('The dimensions for current density are',J0*(10**6),'\mu A / m^2.')
+print('The dimensions for resistivity are',R0/10**6,'M \Omega m^2.')
 
 # Import the specific effective potential RHS to the RKA algorithm
 def rhs(state,r):
     x = -state[0]*Veff(r) + Src(r)
     return x
 
-# Define radial domain & other parameters
-adaptErr = 1.0e-5
+# Define geometry
 r_xi = (xi-1)/xi
 r0 = r_xi
 rf = 1
@@ -110,12 +118,10 @@ def J(r):
     return x
 
 plt.figure(4); plt.clf()
-plt.plot(r_array,J0*J(r_array),'b-')
+plt.plot(r_array,J0*J(r_array)*10**6,'b-')
 plt.ylabel(r'$J_\parallel(r) \ \ (\ \mu A \, / m^2)$'); plt.xlabel('r')
 plt.title('Field-Aligned Current')
 plt.grid('on')
-
-R = (1/R0)*np.float(input('Enter the resistivity (in M\Omega m^2): '))
 
 # Perform RK4 algorithm to construct perturbation. Prime ' is r-derivative:
 # u'   =  w
@@ -128,6 +134,7 @@ rplot = np.array([])
 drplot = np.array([])
 Eplot = np.array([])
 state = np.array([E0])
+adaptErr = 1.0e-5
 
 while r < rf:
     [state,r,dr] = s.rka(state,r,dr,adaptErr,rhs)
@@ -137,12 +144,12 @@ while r < rf:
     Eplot = np.append(Eplot,state[0])
 
 plt.figure(5); plt.clf()
-plt.plot(rplot,E0amp*Eplot,'b-')
+plt.plot(rplot,E0amp*Eplot*1000,'b-')
 plt.ylabel(r'$E_i(r) \ (mV/m)$'); plt.xlabel('r')
 plt.title('Ionospheric Electric Field at T = ' + str(T))
 plt.grid('on')
 
-# extra factor of d
+# Compute magnetospheric electric field
 
 def Grad_J(r):
     x = np.piecewise(r, [r < r0, np.logical_and(r >= r0, r < 0), np.logical_and(r >= 0, r < 1), r >= 1], [lambda r: 0, lambda r: j(r), lambda r: k(r), lambda r: 0])
@@ -159,64 +166,43 @@ def k(r):
 GradJplot = Grad_J(rplot)
 GradJplot[GradJplot > 0] = 0
 
-Emplot = E0amp*Eplot + R0*J0*R*GradJplot/(dyg*RE)*1000
+R = (1/R0)*(10**6)*np.float(input('Enter the resistivity (in M\Omega m^2): '))
+
+Emplot = Eplot + R*GradJplot
 
 plt.figure(7); plt.clf()
-plt.plot(rplot,ratio*Emplot,'b-')
+plt.plot(rplot,ratio*E0amp*Emplot*1000,'b-')
 plt.ylabel(r'$E_m(r) \ (mV/m)$'); plt.xlabel('r')
-plt.title("\n".join(wrap('Magnetospheric Electric Field at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0) + r' $M\Omega \, m^2$',60)))
+plt.title("\n".join(wrap('Magnetospheric Electric Field at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
 plt.grid('on')
+
+# Plot potential drop
 
 Jplot = J(rplot)
 Jplot[Jplot > 0] = 0
 
 plt.figure(8); plt.clf()
-plt.plot(rplot,R0*J0*R*Jplot/1000,'b-')
+plt.plot(rplot,Phi0*R*Jplot/1000,'b-')
 plt.ylabel(r'$\Delta \Phi(r) \, (kV)$'); plt.xlabel('r')
-plt.title("\n".join(wrap('Field-Aligned Potential Drop at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0) + r' $M\Omega \, m^2$',60)))
+plt.title("\n".join(wrap('Field-Aligned Potential Drop at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
 plt.grid('on')
 
-# Use sys to make folder architecture better
+# Compute and plot each potential
 
-# compute potential
 potential = np.zeros(rplot.size)
 for i in range(rplot.size-1):
     dr = rplot[i+1]-rplot[i]
     potential[i+1] = potential[i]-dr*(Eplot[i]+Eplot[i+1])/2
 
-potentialm = (E0amp*dyg*RE)*potential + R*R0*J0*np.where(J(rplot)<0,J(rplot),0)*1000
+potentialm = potential + R*np.where(J(rplot)<0,J(rplot),0)
 
 plt.figure(9); plt.clf()
-plt.plot(rplot,potential*(E0amp*dyg*RE)/1000,'b-')
-plt.plot(rplot,potentialm/1000,'g-')
+plt.plot(rplot,Phi0*potential/1000,'b-')
+plt.plot(rplot,Phi0*potentialm/1000,'g-')
 plt.ylabel(r'$\Phi(r) \, (kV)$'); plt.xlabel('r')
 plt.legend(['potential', 'potentialm'])
-plt.title("\n".join(wrap('Magnetospheric and Ionospheric Potentials at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0) + r' $M\Omega \, m^2$',60)))
+plt.title("\n".join(wrap('Magnetospheric and Ionospheric Potentials at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
 plt.grid('on')
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Use sys to make folder architecture better
