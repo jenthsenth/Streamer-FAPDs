@@ -9,13 +9,14 @@ import Streamer_Y2 as sy
 from textwrap import wrap
 
 # Pick a specific streamer time and slices to determine parameters
+
 try:
     T = input('Enter the moment of time you want to examine: ')
 except:
     print('Wrong input. Please enter a number ...')
 
-xs, d, K0, xi, eta, Sigma0, sigma, beta, dyg, dm = sx.Streamer_X(T)
-Scos, ys, Erat = sy.Streamer_Y(T,xs)
+xs, d, K0, xi, eta, Sigma0, sigma, beta, dyg, dm, Birk_array = sx.Streamer_X(T)
+Scos, ys = sy.Streamer_Y(T,xs)
 
 print('(xs,ys) = (' + str(xs) + ',' + str(ys) + ')')
 print('The streamer width d = ' + str(d) + 'R_E')
@@ -26,16 +27,15 @@ print('The factor eta = ' + str(eta))
 print('The background Pedersen conductance is Sigma0 = ' + str(Sigma0) + ' S')
 print('The conductivity enhancement factor is sigma = ' + str(sigma))
 print('The conductivity width factor is beta = ' + str(beta))
-print('The FTV factor Scos(zeta) = ' + str(Scos) + ' 1/nT \, (R_E/nT)^(-5/3)')
+print('The FTV factor Scos(zeta) = ' + str(Scos) + ' 1/nT (R_E/nT)^(-5/3)')
 
 # Define mapping ratios
 
 drat = d/dm
-# ratio = Erat
 ratio = drat
-# ratio = 1
 
 # Convert distance units from RE to m
+
 RE = 6371009
 d = d*RE
 dyg = dyg*RE
@@ -43,9 +43,14 @@ dyg = dyg*RE
 # Define dimensionful scaling factors
 
 Phi0 = (eta/(eta+1))*np.pi*K0*Scos*d/Sigma0
+
+# Phi0 = Phi0/2
+
 R0 = (d**2)/Sigma0
 J0 = Phi0/R0
 E0amp = Phi0/dyg
+
+
 
 # FACs should be ~< 25 \muA/m^2
 # PCP ~ 50 kV
@@ -73,7 +78,7 @@ r0 = r_xi
 rf = 1
 dr = (rf-r0)/1000
 
-r_array = np.arange(r0,rf,dr)
+r_array = np.linspace(r0,rf,1000)
 
 # Import the specific effective potential RHS to the RKA algorithm
 
@@ -127,6 +132,7 @@ def J(r):
 
 plt.figure(4); plt.clf()
 plt.plot(r_array,J0*J(r_array)*10**6,'b-')
+plt.plot(r_array,2*Birk_array,'r-')
 plt.ylabel(r'$J_\parallel(r) \ \ (\ \mu A \, / m^2)$'); plt.xlabel('r')
 plt.title('Field-Aligned Current')
 plt.grid('on')
@@ -237,6 +243,7 @@ plt.grid('on')
 # plt.plot(rplot,E0amp*R*DJplot/1000,'b-')
 # plt.title('DJplot')
 # plt.grid('on')
+
 
 
 # Emplot = Eplot - R*DJplot

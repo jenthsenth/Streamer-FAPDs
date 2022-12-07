@@ -3,15 +3,20 @@ import matplotlib.pyplot as plt
 
 def Streamer_X(T):
     
-    # T = str(10)
     # Load in tab delimited file
     filein = 'Streamer_GRL2014_T='+T+'.dat'
     data = np.loadtxt(filein,skiprows=77)
     
+    # filein = 'Streamer_WQ_T='+T+'.dat'
+    # data = np.loadtxt(filein,skiprows=46)
+    
     # Read in field arrays
-    blah = data[:,44]
+    # xline = 44
+    xline = 38
+    
+    xion = data[:,xline]
     nslices = 100
-    ndim = blah.size
+    ndim = xion.size
     
     xmag = data[:,6].reshape((int(ndim/nslices),nslices))
     ymag = data[:,7].reshape((int(ndim/nslices),nslices))
@@ -23,55 +28,45 @@ def Streamer_X(T):
     pedlam = data[:,15].reshape((int(ndim/nslices),nslices))
     hall = data[:,17].reshape((int(ndim/nslices),nslices))
     eflux = data[:,18].reshape((int(ndim/nslices),nslices))
-    N = data[:,20].reshape((int(ndim/nslices),nslices))
-    Temp = data[:,21].reshape((int(ndim/nslices),nslices))
     P = data[:,22].reshape((int(ndim/nslices),nslices))
     k = data[:,23].reshape((int(ndim/nslices),nslices))
-    Ne = data[:,24].reshape((int(ndim/nslices),nslices))
-    Tempe = data[:,25].reshape((int(ndim/nslices),nslices))
-    Pe = data[:,26].reshape((int(ndim/nslices),nslices))
-    ke = data[:,27].reshape((int(ndim/nslices),nslices))
-    Ni = data[:,28].reshape((int(ndim/nslices),nslices))
-    Tempi = data[:,20].reshape((int(ndim/nslices),nslices))
-    Pi = data[:,30].reshape((int(ndim/nslices),nslices))
-    ki = data[:,31].reshape((int(ndim/nslices),nslices))
     xion = data[:,44].reshape((int(ndim/nslices),nslices))
     yion = data[:,45].reshape((int(ndim/nslices),nslices))
-    brat = data[:,51].reshape((int(ndim/nslices),nslices))
-    edistrat = data[:,52].reshape((int(ndim/nslices),nslices))
-    btotrat = data[:,57].reshape((int(ndim/nslices),nslices))
     
-    nbadL = 61
-    nx = int(np.sqrt(xion.size)) - nbadL
+    # xmag = data[:,6].reshape((int(ndim/nslices),nslices))
+    # ymag = data[:,7].reshape((int(ndim/nslices),nslices))
+    # ftv = data[:,8].reshape((int(ndim/nslices),nslices))
+    # bmin = data[:,9].reshape((int(ndim/nslices),nslices))
+    # v = data[:,10].reshape((int(ndim/nslices),nslices))
+    # birk = data[:,11].reshape((int(ndim/nslices),nslices))
+    # P = data[:,12].reshape((int(ndim/nslices),nslices))
+    # k = data[:,13].reshape((int(ndim/nslices),nslices))
+    # pedlam = data[:,21].reshape((int(ndim/nslices),nslices))
+    # hall = data[:,23].reshape((int(ndim/nslices),nslices))
+    # eflux = data[:,27].reshape((int(ndim/nslices),nslices))
+    # vm = data[:,37].reshape((int(ndim/nslices),nslices))
+    # xion = data[:,38].reshape((int(ndim/nslices),nslices))
+    # yion = data[:,39].reshape((int(ndim/nslices),nslices))
+    
+    nbad = 61
+    # nbad = 48
+    nx = int(np.sqrt(xion.size)) - nbad
     # higher nx causes problems because of chopped values in RCM
     
-    xmag = xmag[nbadL:]
-    ymag = ymag[nbadL:]
-    vm = vm[nbadL:]
-    ftv = ftv[nbadL:]
-    bmin = bmin[nbadL:]
-    v = v[nbadL:]
-    birk = birk[nbadL:]
-    pedlam = pedlam[nbadL:]
-    hall = hall[nbadL:]
-    eflux = eflux[nbadL:]
-    N = N[nbadL:]
-    Temp = Temp[nbadL:]
-    P = P[nbadL:]
-    k = k[nbadL:]
-    Ne = Ne[nbadL:]
-    Tempe = Tempe[nbadL:]
-    Pe = Pe[nbadL:]
-    ke = ke[nbadL:]
-    Ni = Ni[nbadL:]
-    Tempi = Tempi[nbadL:]
-    Pi = Pi[nbadL:]
-    ki = ki[nbadL:]
-    xion = xion[nbadL:]
-    yion = yion[nbadL:]
-    brat = brat[nbadL:]
-    edistrat = edistrat[nbadL:]
-    btotrat = btotrat[nbadL:]
+    xmag = xmag[nbad:]
+    ymag = ymag[nbad:]
+    vm = vm[nbad:]
+    ftv = ftv[nbad:]
+    bmin = bmin[nbad:]
+    v = v[nbad:]
+    birk = birk[nbad:]
+    pedlam = pedlam[nbad:]
+    hall = hall[nbad:]
+    eflux = eflux[nbad:]
+    P = P[nbad:]
+    k = k[nbad:]
+    xion = xion[nbad:]
+    yion = yion[nbad:]
     
     # Plot the RCM-E fields for all slices at the given time step
     plt.figure(1); plt.clf()
@@ -95,26 +90,19 @@ def Streamer_X(T):
     plt.title(filein)
     plt.show()
     
-    # plt.figure(4); plt.clf()
-    # for i in range(nx):
-    #     plt.plot(yion[i,:],np.sqrt(brat[i,:]),label='x = ' + str(xion[i,0]))
-    # plt.grid(); plt.ylabel('Sqrt brat'); plt.xlabel(r'$y_i$')
-    # plt.title(filein)
-    # plt.show()
-    
     plt.figure(4); plt.clf()
     for i in range(nx):
-        plt.plot(yion[i,:],edistrat[i,:],label='x = ' + str(xion[i,0]))
-    plt.grid(); plt.ylabel('Edistrat'); plt.xlabel(r'$y_i$')
+        plt.plot(yion[i,:],v[i,:],label='x = ' + str(xion[i,0]))
+    plt.grid(); plt.ylabel('Sqrt brat'); plt.xlabel(r'$y_i$')
     plt.title(filein)
     plt.show()
     
-    plt.figure(5); plt.clf()
-    for i in range(nx):
-        plt.plot(ymag[i,:],k[i,:],label='x = ' + str(xion[i,0]))
-    plt.grid(); plt.ylabel('k'); plt.xlabel(r'$y_i$')
-    plt.title(filein)
-    plt.show()
+    # plt.figure(5); plt.clf()
+    # for i in range(nx):
+    #     plt.plot(yion[i,:],hall[i,:],label='x = ' + str(xion[i,0]))
+    # plt.grid(); plt.ylabel('birk'); plt.xlabel(r'$y_i$')
+    # plt.title(filein)
+    # plt.show()
     
     # Choose X-slice
     try:
@@ -125,11 +113,12 @@ def Streamer_X(T):
     xs = xion[ix,0]
     
     # Define and plot the RCM-E fields for the chosen slice
+    
     y_array = yion[ix,:]
     ym_array = ymag[ix,:]
     K_array = k[ix,:]
     Cond_array = pedlam[ix,:]
-    Bmin_array = bmin[ix,:]
+    Birk_array = birk[ix,:]
     
     def K(y):
         x = np.interp(y,y_array,K_array)
@@ -139,6 +128,9 @@ def Streamer_X(T):
         return x
     def ymag(y):
         x = np.interp(y,y_array,ym_array)
+        return x
+    def Birk(y):
+        x = np.interp(y,y_array,Birk_array)
         return x
     
     plt.figure(6); plt.clf()
@@ -154,15 +146,9 @@ def Streamer_X(T):
     plt.show()
     
     plt.figure(8); plt.clf()
-    plt.plot(y_array,Bmin_array)
-    plt.grid(); plt.ylabel(r'$Bmin(y)$'); plt.xlabel(r'$y$')
-    plt.title(r'Bmin at $T = $' + str(T) + ' and $X = $' + str(xs))
-    plt.show()
-    
-    plt.figure(9); plt.clf()
-    plt.plot(y_array,ym_array)
-    plt.grid(); plt.ylabel(r'$Bmin(y)$'); plt.xlabel(r'$y$')
-    plt.title(r'Bmin at $T = $' + str(T) + ' and $X = $' + str(xs))
+    plt.plot(y_array,Birk_array)
+    plt.grid(); plt.ylabel(r'$Birk(y) \, \left( \mu A / m^2 \right)$'); plt.xlabel(r'$y$')
+    plt.title(r'Birkeland Currents at $T = $' + str(T) + ' and $X = $' + str(xs))
     plt.show()
     
     # Shift y-boundaries
@@ -175,6 +161,7 @@ def Streamer_X(T):
     
     Knew = K(ynew)
     Cond_array = Cond(ynew)
+    Birk_array = Birk(ynew)
     
     # Rescale and shift y-axis to create r-axis
     Kmin = np.min(Knew)
@@ -256,9 +243,14 @@ def Streamer_X(T):
     plt.title(r'Conductivity Profile at $x_s$ = ' + str(xs))
     plt.show()
     
+    plt.figure(13); plt.clf()
+    plt.plot(r_array,Birk_array,'b-',label = 'RCM-E')
+    plt.legend(); plt.grid('on'); plt.ylabel(r'$Birk(r)$'); plt.xlabel(r'$r$')
+    plt.title(r'Birkeland Current Profile at $x_s$ = ' + str(xs))
+    plt.show()
 
 
-    return xs, d, K0, xi, eta, Sigma0, sigma, beta, dyg, dm
+    return xs, d, K0, xi, eta, Sigma0, sigma, beta, dyg, dm, Birk_array
 
 # if you select wrong, re-prompt
 # Automate 1 or both sides of y-boundary determination.

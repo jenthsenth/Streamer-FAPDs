@@ -82,7 +82,7 @@ while T < 31:
     
     # Plot the RCM-E fields for all slices at the given time step
     
-    field = pedlam
+    field = vm
     X, Y = np.meshgrid(yion, xion)
     fig,ax=plt.subplots(1,1)
     cp = ax.contourf(X, Y, field)

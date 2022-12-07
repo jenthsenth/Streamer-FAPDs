@@ -4,16 +4,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-T = 0
+T = 0 + 60
 
-while T < 31:
+while T < 61 + 60:
 
     # Load in tab delimited file
-    filein = 'Streamer_GRL2014_T='+str(T)+'.dat'
+    filein = 'Streamer_WQ_T='+str(T)+'.dat'
     data = np.loadtxt(filein,skiprows=77)
     
     # Read in field arrays
-    blah = data[:,44]
+    # xline = 44
+    xline = 38
+    blah = data[:,xline]
     nslices = 100
     ndim = blah.size
     
