@@ -15,7 +15,7 @@ try:
 except:
     print('Wrong input. Please enter a number ...')
 
-xs, d, K0, xi, eta, Sigma0, sigma, beta, dyg, dm, Birk_array = sx.Streamer_X(T)
+xs, d, K0, xi, eta, Sigma0, sigma, Sigma02, sigma2, beta, dyg, dm, Birk_array, RCMpot_array = sx.Streamer_X(T)
 Scos, ys = sy.Streamer_Y(T,xs)
 
 print('(xs,ys) = (' + str(xs) + ',' + str(ys) + ')')
@@ -86,6 +86,10 @@ def rhs(state,r):
     x = -state[0]*Veff(r) + Src(r)
     return x
 
+def rhs2(state,r):
+    x = -state[0]*Veff2(r) + Src2(r)
+    return x
+
 # Create background profiles and potential
 
 def f(r):
@@ -131,11 +135,12 @@ def J(r):
 # Plot FACs
 
 plt.figure(4); plt.clf()
-plt.plot(r_array,J0*J(r_array)*10**6,'b-')
-plt.plot(r_array,2*Birk_array,'r-')
-plt.ylabel(r'$J_\parallel(r) \ \ (\ \mu A \, / m^2)$'); plt.xlabel('r')
+plt.plot(r_array,J0*J(r_array)*10**6,'r-',label = 'Analytic')
+plt.plot(r_array,2*Birk_array,'b-',label = 'RCM-E')
+plt.legend(); plt.grid('on'); plt.ylabel(r'$J_\parallel(r) \ \ (\ \mu A \, / m^2)$'); plt.xlabel('r')
 plt.title('Field-Aligned Current')
-plt.grid('on')
+
+
 
 # Use adaptive Runge-Kutta to solve for ionospheric electric field. Prime ' is r-derivative:
 
@@ -181,7 +186,7 @@ def k(r):
 
 GradJplot = Grad_J(rplot)*np.where(Jplot < 0, 1, 0)
 
-plt.figure(10); plt.clf()
+plt.figure(6); plt.clf()
 plt.plot(rplot,E0amp*R*GradJplot/1000,'b-')
 plt.ylabel(r'$\Delta \Phi(r) \, (kV)$'); plt.xlabel('r')
 plt.title("\n".join(wrap('Field-Aligned Potential Drop at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
@@ -213,8 +218,9 @@ potentialm = potential + R*Jplot*np.where(Jplot < 0, 1, 0)
 plt.figure(9); plt.clf()
 plt.plot(rplot,Phi0*potential/1000,'b-')
 plt.plot(rplot,Phi0*potentialm/1000,'r-')
+plt.plot(r_array,RCMpot_array/1000 - RCMpot_array[0]/1000,'g-')
 plt.ylabel(r'$\Phi(r) \, (kV)$'); plt.xlabel('r')
-plt.legend(['potential', 'potentialm'])
+plt.legend(['potential', 'potentialm','potentialRCM'])
 plt.title("\n".join(wrap('Magnetospheric and Ionospheric Potentials at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
 plt.grid('on')
 
@@ -290,3 +296,96 @@ plt.grid('on')
 # plt.grid('on')
 
 # Use sys to make folder architecture better
+
+
+
+
+
+
+# Source and Potential
+
+# Define dimensionful scaling factors
+
+Phi02 = (eta/(eta+1))*np.pi*K0*Scos*d/Sigma02
+R02 = (d**2)/Sigma02
+E0amp2 = Phi02/dyg
+
+# Create background profiles and potential
+
+def f2(r):
+    x = np.pi*xi*sigma2*np.cos(np.pi*xi*(r - r_xi))/(1 + sigma2*np.sin(np.pi*xi*(r - r_xi)))
+    return x
+
+def Veff2(r):
+    x = np.piecewise(r, [r < 0, np.logical_and(r >= r0, r < rf), r >= rf], [lambda r: 0, lambda r: f2(r), lambda r: 0])
+    return x
+
+plt.figure(10); plt.clf()
+plt.plot(r_array,Veff2(r_array),'b-')
+plt.ylabel('V(r)'); plt.xlabel('r')
+plt.title('Potential')
+plt.grid('on')
+
+def h2(r):
+    x = - (xi/(1 + sigma2*np.sin(np.pi*xi*(r - r_xi))))*np.sin(np.pi*r)
+    return x
+
+def g2(r):
+    x = - (xi/(1 + sigma2*np.sin(np.pi*xi*(r - r_xi))))*(np.sin(np.pi*r/r_xi)/r_xi)
+    return x
+
+def Src2(r):
+    x = np.piecewise(r, [r < r0, np.logical_and(r >= r0, r < 0), np.logical_and(r >= 0, r < rf), r >= 1], [lambda r: 0, lambda r: g2(r), lambda r: h2(r), lambda r: 0])
+    return x
+
+plt.figure(11); plt.clf()
+plt.plot(r_array,Src2(r_array),'b-')
+plt.ylabel('Src(r)'); plt.xlabel('r')
+plt.title('Source Term')
+plt.grid('on')
+
+# Solver for ionospheric electric field
+E0 = 0.0
+r = r0
+rplot = np.array([])
+drplot = np.array([])
+Eplot2 = np.array([])
+state = np.array([E0])
+adaptErr = 1.0e-12
+
+while r < rf:
+    [state,r,dr] = s.rka(state,r,dr,adaptErr,rhs2)
+    # store plots
+    rplot = np.append(rplot,r)
+    drplot = np.append(drplot,dr)
+    Eplot2 = np.append(Eplot2,state[0])
+
+plt.figure(12); plt.clf()
+plt.plot(rplot,E0amp2*Eplot2*1000,'b-')
+plt.ylabel(r'$E_i(r) \ (mV/m)$'); plt.xlabel('r')
+plt.title('Ionospheric Electric Field at T = ' + str(T))
+plt.grid('on')
+
+# Compute potential
+
+L = rplot.size
+potential2 = np.zeros(L)
+for i in range(L-1):
+    dr = rplot[i+1]-rplot[i]
+    potential2[i+1] = potential2[i]-dr*(Eplot2[i]+Eplot2[i+1])/2
+
+Phi0RCM = - (RCMpot_array[-1] - RCMpot_array[0])/1000
+
+Phi0f = - Phi02*potential2[-1]/1000
+
+plt.figure(14); plt.clf()
+plt.plot(rplot,Phi02*potential2/1000,'b-')
+plt.plot(r_array,(RCMpot_array - RCMpot_array[0])/1000,'r-')
+plt.ylabel(r'$\Phi(r) \, (kV)$'); plt.xlabel('r')
+plt.legend(['potential', 'potentialRCM'])
+plt.title("\n".join(wrap('Ionospheric Potential at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
+plt.grid('on')
+
+# entropy plots
+
+

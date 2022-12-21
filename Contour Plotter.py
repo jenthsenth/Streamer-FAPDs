@@ -82,21 +82,21 @@ while T < 31:
     
     # Plot the RCM-E fields for all slices at the given time step
     
-    field = vm
+    field = k
     X, Y = np.meshgrid(yion, xion)
     fig,ax=plt.subplots(1,1)
     cp = ax.contourf(X, Y, field)
     fig.colorbar(cp) # Add a colorbar to a plot
-    ax.set_title('Ionospheric Pedersen Conductivity at T = '+str(T))
+    ax.set_title('Ionospheric Entropy at T = '+str(T))
     ax.set_ylabel(r'$x_i$')
     ax.set_xlabel(r'$y_i$')
     
     # calc index of min/max Z value
-    xmin, ymin = np.unravel_index(np.argmin(field), field.shape)
-    xmax, ymax = np.unravel_index(np.argmax(field), field.shape)
+    # xmin, ymin = np.unravel_index(np.argmin(field), field.shape)
+    # xmax, ymax = np.unravel_index(np.argmax(field), field.shape)
     
-    ax.plot(yion[ymin], xion[xmin], 'bo')
-    ax.plot(yion[ymax], xion[xmax], 'ro')
+    # ax.plot(yion[ymin], xion[xmin], 'bo')
+    # ax.plot(yion[ymax], xion[xmax], 'ro')
     
     plt.show()
     
