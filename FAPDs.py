@@ -15,7 +15,7 @@ try:
 except:
     print('Wrong input. Please enter a number ...')
 
-xs, d, K0, xi, eta, Sigma0, sigma, Sigma02, sigma2, beta, dyg, dm, Birk_array, RCMpot_array = sx.Streamer_X(T)
+xs, d, K0, xi, eta, Sigma0, sigma, dyg, dm, Birk_array, RCMpot_array = sx.Streamer_X(T)
 Scos, ys = sy.Streamer_Y(T,xs)
 
 print('(xs,ys) = (' + str(xs) + ',' + str(ys) + ')')
@@ -26,7 +26,6 @@ print('The asymmetry factor xi = ' + str(xi))
 print('The factor eta = ' + str(eta))
 print('The background Pedersen conductance is Sigma0 = ' + str(Sigma0) + ' S')
 print('The conductivity enhancement factor is sigma = ' + str(sigma))
-print('The conductivity width factor is beta = ' + str(beta))
 print('The FTV factor Scos(zeta) = ' + str(Scos) + ' 1/nT (R_E/nT)^(-5/3)')
 
 # Define mapping ratios
@@ -43,14 +42,9 @@ dyg = dyg*RE
 # Define dimensionful scaling factors
 
 Phi0 = (eta/(eta+1))*np.pi*K0*Scos*d/Sigma0
-
-# Phi0 = Phi0/2
-
 R0 = (d**2)/Sigma0
 J0 = Phi0/R0
 E0amp = Phi0/dyg
-
-
 
 # FACs should be ~< 25 \muA/m^2
 # PCP ~ 50 kV
@@ -64,6 +58,9 @@ E0amp = Phi0/dyg
 # B_min ~< 10 nT
 # v_BBF ~ 300-400 km/s
 # v_str ~ 1 km/s
+
+
+# automate slice selection to match to RCM potential drop
 
 # solve phi equation first, make contour plot, determine direction and magnitude of field?
 
@@ -86,14 +83,10 @@ def rhs(state,r):
     x = -state[0]*Veff(r) + Src(r)
     return x
 
-def rhs2(state,r):
-    x = -state[0]*Veff2(r) + Src2(r)
-    return x
-
 # Create background profiles and potential
 
 def f(r):
-    x = np.pi*beta*sigma * ((np.sin(np.pi*r))**(beta - 1)) * np.cos(np.pi*r) / (1 + sigma * (np.sin(np.pi*r))**beta)
+    x = np.pi*sigma * np.cos(np.pi*r) / (1 + sigma * np.sin(np.pi*r))
     return x
 
 def Veff(r):
@@ -107,7 +100,7 @@ def Veff(r):
 # plt.grid('on')
 
 def h(r):
-    x = - xi * np.sin(np.pi*r) / (1 + sigma * (np.sin(np.pi*r))**beta)
+    x = - xi * np.sin(np.pi*r) / (1 + sigma * np.sin(np.pi*r))
     return x
 
 def g(r):
@@ -226,9 +219,6 @@ plt.grid('on')
 
 
 
-
-
-
 # SANITY CHECKS
 
 # Jplot = J(rplot)
@@ -296,96 +286,3 @@ plt.grid('on')
 # plt.grid('on')
 
 # Use sys to make folder architecture better
-
-
-
-
-
-
-# Source and Potential
-
-# Define dimensionful scaling factors
-
-Phi02 = (eta/(eta+1))*np.pi*K0*Scos*d/Sigma02
-R02 = (d**2)/Sigma02
-E0amp2 = Phi02/dyg
-
-# Create background profiles and potential
-
-def f2(r):
-    x = np.pi*xi*sigma2*np.cos(np.pi*xi*(r - r_xi))/(1 + sigma2*np.sin(np.pi*xi*(r - r_xi)))
-    return x
-
-def Veff2(r):
-    x = np.piecewise(r, [r < 0, np.logical_and(r >= r0, r < rf), r >= rf], [lambda r: 0, lambda r: f2(r), lambda r: 0])
-    return x
-
-plt.figure(10); plt.clf()
-plt.plot(r_array,Veff2(r_array),'b-')
-plt.ylabel('V(r)'); plt.xlabel('r')
-plt.title('Potential')
-plt.grid('on')
-
-def h2(r):
-    x = - (xi/(1 + sigma2*np.sin(np.pi*xi*(r - r_xi))))*np.sin(np.pi*r)
-    return x
-
-def g2(r):
-    x = - (xi/(1 + sigma2*np.sin(np.pi*xi*(r - r_xi))))*(np.sin(np.pi*r/r_xi)/r_xi)
-    return x
-
-def Src2(r):
-    x = np.piecewise(r, [r < r0, np.logical_and(r >= r0, r < 0), np.logical_and(r >= 0, r < rf), r >= 1], [lambda r: 0, lambda r: g2(r), lambda r: h2(r), lambda r: 0])
-    return x
-
-plt.figure(11); plt.clf()
-plt.plot(r_array,Src2(r_array),'b-')
-plt.ylabel('Src(r)'); plt.xlabel('r')
-plt.title('Source Term')
-plt.grid('on')
-
-# Solver for ionospheric electric field
-E0 = 0.0
-r = r0
-rplot = np.array([])
-drplot = np.array([])
-Eplot2 = np.array([])
-state = np.array([E0])
-adaptErr = 1.0e-12
-
-while r < rf:
-    [state,r,dr] = s.rka(state,r,dr,adaptErr,rhs2)
-    # store plots
-    rplot = np.append(rplot,r)
-    drplot = np.append(drplot,dr)
-    Eplot2 = np.append(Eplot2,state[0])
-
-plt.figure(12); plt.clf()
-plt.plot(rplot,E0amp2*Eplot2*1000,'b-')
-plt.ylabel(r'$E_i(r) \ (mV/m)$'); plt.xlabel('r')
-plt.title('Ionospheric Electric Field at T = ' + str(T))
-plt.grid('on')
-
-# Compute potential
-
-L = rplot.size
-potential2 = np.zeros(L)
-for i in range(L-1):
-    dr = rplot[i+1]-rplot[i]
-    potential2[i+1] = potential2[i]-dr*(Eplot2[i]+Eplot2[i+1])/2
-
-Phi0RCM = - (RCMpot_array[-1] - RCMpot_array[0])/1000
-
-Phi0f = - Phi02*potential2[-1]/1000
-
-plt.figure(14); plt.clf()
-plt.plot(rplot,Phi02*potential2/1000,'b-')
-plt.plot(r_array,(RCMpot_array - RCMpot_array[0])/1000,'r-')
-plt.ylabel(r'$\Phi(r) \, (kV)$'); plt.xlabel('r')
-plt.legend(['potential', 'potentialRCM'])
-plt.title("\n".join(wrap('Ionospheric Potential at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
-plt.grid('on')
-
-# entropy plots
-
-

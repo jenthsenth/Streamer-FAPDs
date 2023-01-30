@@ -82,12 +82,12 @@ while T < 31:
     
     # Plot the RCM-E fields for all slices at the given time step
     
-    field = k
+    field = eflux
     X, Y = np.meshgrid(yion, xion)
     fig,ax=plt.subplots(1,1)
     cp = ax.contourf(X, Y, field)
     fig.colorbar(cp) # Add a colorbar to a plot
-    ax.set_title('Ionospheric Entropy at T = '+str(T))
+    ax.set_title('Eflux at T = '+str(T))
     ax.set_ylabel(r'$x_i$')
     ax.set_xlabel(r'$y_i$')
     

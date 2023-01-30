@@ -9,7 +9,6 @@ def Streamer_Y(T,xs):
     
     # filein = 'Streamer_WQ_T='+T+'.dat'
     # data = np.loadtxt(filein,skiprows=46)
-    
     # Read in field arrays
     yline = 45
     # yline = 39

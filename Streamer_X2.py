@@ -226,29 +226,12 @@ def Streamer_X(T):
     Sigmamax = np.max(Cond_array)
     sigma = (Sigmamax - Sigma0)/Sigma0
     
-    Sigma02 = np.min(Cond_array)
-    # Sigma02 = Sigma0
-    sigma2 = (np.max(Cond_array) - Sigma02)/Sigma02
-    
-    try:
-        beta = float(input('Please enter a guess for beta (larger values are thinner bumps): '))
-    except:
-        print('Wrong input. Please enter a number ...')
-    
     def Cond(r):
-        x = 1 + sigma * (np.sin(np.pi*r))**beta
+        x = 1 + sigma * (np.sin(np.pi*r))
         return x
     
     def Condanalytic(r):
         x = Sigma0 * np.piecewise(r, [r < 0, np.logical_and(r >= 0, r < 1), r >= 1], [lambda r: 1, lambda r: Cond(r), lambda r: 1])
-        return x
-    
-    def Cond2(r):
-        x = 1 + sigma2 * (np.sin(np.pi*xi*(r - r0)))
-        return x
-    
-    def Condanalytic2(r):
-        x = Sigma02 * np.piecewise(r, [r < 0, np.logical_and(r >= r0, r < 1), r >= 1], [lambda r: 1, lambda r: Cond2(r), lambda r: 1])
         return x
     
     plt.figure(12); plt.clf()
@@ -263,19 +246,10 @@ def Streamer_X(T):
     plt.legend(); plt.grid('on'); plt.ylabel(r'$Birk(r)$'); plt.xlabel(r'$r$')
     plt.title(r'Birkeland Current Profile at $x_s$ = ' + str(xs))
     plt.show()
-    
-    plt.figure(14); plt.clf()
-    plt.plot(r_array,Cond_array,'b-',label = 'RCM-E')
-    plt.plot(r_array,Condanalytic2(r_array),'r-', label = 'Analytic')
-    plt.legend(); plt.grid('on'); plt.ylabel(r'$\Sigma(r)$'); plt.xlabel(r'$r$')
-    plt.title(r'Conductivity Profile at $x_s$ = ' + str(xs))
-    plt.show()
 
-
-    return xs, d, K0, xi, eta, Sigma0, sigma, Sigma02, sigma2, beta, dyg, dm, Birk_array, RCMpot_array
+    return xs, d, K0, xi, eta, Sigma0, sigma, dyg, dm, Birk_array, RCMpot_array
 
 # if you select wrong, re-prompt
 # Automate 1 or both sides of y-boundary determination.
-# Reprompt for beta
 # Automate Sigma0
 # Legends
