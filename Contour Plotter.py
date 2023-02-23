@@ -27,6 +27,7 @@ while T < 31:
     pedlam = data[:,15].reshape((int(ndim/nslices),nslices))
     hall = data[:,17].reshape((int(ndim/nslices),nslices))
     eflux = data[:,18].reshape((int(ndim/nslices),nslices))
+    eavg = data[:,19].reshape((int(ndim/nslices),nslices))
     N = data[:,20].reshape((int(ndim/nslices),nslices))
     Temp = data[:,21].reshape((int(ndim/nslices),nslices))
     P = data[:,22].reshape((int(ndim/nslices),nslices))
@@ -46,57 +47,73 @@ while T < 31:
     btotrat = data[:,57].reshape((int(ndim/nslices),nslices))
     
     # Excise points outside of the boundary
-    nbadL = 61
-    nx = int(np.sqrt(xion.size)) - nbadL
+    nbad = 61
+    nx = int(np.sqrt(xion.size)) - nbad
     
-    xmag = xmag[nbadL:]
-    ymag = ymag[nbadL:]
-    vm = vm[nbadL:]
-    ftv = ftv[nbadL:]
-    bmin = bmin[nbadL:]
-    v = v[nbadL:]
-    birk = birk[nbadL:]
-    pedlam = pedlam[nbadL:]
-    hall = hall[nbadL:]
-    eflux = eflux[nbadL:]
-    N = N[nbadL:]
-    Temp = Temp[nbadL:]
-    P = P[nbadL:]
-    k = k[nbadL:]
-    Ne = Ne[nbadL:]
-    Tempe = Tempe[nbadL:]
-    Pe = Pe[nbadL:]
-    ke = ke[nbadL:]
-    Ni = Ni[nbadL:]
-    Tempi = Tempi[nbadL:]
-    Pi = Pi[nbadL:]
-    ki = ki[nbadL:]
-    xion = xion[nbadL:]
-    yion = yion[nbadL:]
-    brat = brat[nbadL:]
-    edistrat = edistrat[nbadL:]
-    btotrat = btotrat[nbadL:]
+    xmag = xmag[nbad:]
+    ymag = ymag[nbad:]
+    vm = vm[nbad:]
+    ftv = ftv[nbad:]
+    bmin = bmin[nbad:]
+    v = v[nbad:]
+    birk = birk[nbad:]
+    pedlam = pedlam[nbad:]
+    hall = hall[nbad:]
+    eflux = eflux[nbad:]
+    eavg = eavg[nbad:]
+    N = N[nbad:]
+    Temp = Temp[nbad:]
+    P = P[nbad:]
+    k = k[nbad:]
+    Ne = Ne[nbad:]
+    Tempe = Tempe[nbad:]
+    Pe = Pe[nbad:]
+    ke = ke[nbad:]
+    Ni = Ni[nbad:]
+    Tempi = Tempi[nbad:]
+    Pi = Pi[nbad:]
+    ki = ki[nbad:]
+    xion = xion[nbad:]
+    yion = yion[nbad:]
+    brat = brat[nbad:]
+    edistrat = edistrat[nbad:]
+    btotrat = btotrat[nbad:]
     
     xion = xion[:,0]
     yion = yion[0,:]
     
+    c = 3*10**10
+    me = 511000/c**2
+    e = 1.602*10**(-19)
+    dphi = birk*2500
+    bi = 5*10**4
+    Te = Tempe
+    
+    eavg_para = Te + e*dphi
+    eflux_para = Ne*np.sqrt(Te/(2*np.pi*me))*eavg_para*(bi/bmin - ((bi - bmin)/bmin)*np.exp(-(bmin/(bi - bmin))*e*dphi/Te))
+    
+    eavg_para = eavg_para/1000
+    eflux_para = eflux_para*1.602*10**(-12)*np.where(birk < 0, 1, 0)
+    
+    Robinson = (40*eavg_para/(16 + eavg_para**2))*np.sqrt(eflux_para)
+    
     # Plot the RCM-E fields for all slices at the given time step
     
-    field = eflux
+    field = eavg_para
     X, Y = np.meshgrid(yion, xion)
     fig,ax=plt.subplots(1,1)
     cp = ax.contourf(X, Y, field)
     fig.colorbar(cp) # Add a colorbar to a plot
-    ax.set_title('Eflux at T = '+str(T))
+    ax.set_title('Conductance Enhancement at T = '+str(T))
     ax.set_ylabel(r'$x_i$')
     ax.set_xlabel(r'$y_i$')
     
     # calc index of min/max Z value
-    # xmin, ymin = np.unravel_index(np.argmin(field), field.shape)
-    # xmax, ymax = np.unravel_index(np.argmax(field), field.shape)
+    xmin, ymin = np.unravel_index(np.argmin(field), field.shape)
+    xmax, ymax = np.unravel_index(np.argmax(field), field.shape)
     
-    # ax.plot(yion[ymin], xion[xmin], 'bo')
-    # ax.plot(yion[ymax], xion[xmax], 'ro')
+    ax.plot(yion[ymin], xion[xmin], 'bo')
+    ax.plot(yion[ymax], xion[xmax], 'ro')
     
     plt.show()
     

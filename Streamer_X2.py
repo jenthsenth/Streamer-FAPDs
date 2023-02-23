@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def Streamer_X(T):
+def Streamer_X(T,Re):
     
     # Load in tab delimited file
     filein = 'Streamer_GRL2014_T='+T+'.dat'
@@ -26,10 +26,14 @@ def Streamer_X(T):
     v = data[:,11].reshape((int(ndim/nslices),nslices))
     birk = data[:,13].reshape((int(ndim/nslices),nslices))
     pedlam = data[:,15].reshape((int(ndim/nslices),nslices))
+    pedpsi = data[:,16].reshape((int(ndim/nslices),nslices))
     hall = data[:,17].reshape((int(ndim/nslices),nslices))
     eflux = data[:,18].reshape((int(ndim/nslices),nslices))
+    eavg = data[:,19].reshape((int(ndim/nslices),nslices))
     P = data[:,22].reshape((int(ndim/nslices),nslices))
     k = data[:,23].reshape((int(ndim/nslices),nslices))
+    Ne = data[:,24].reshape((int(ndim/nslices),nslices))
+    Tempe = data[:,25].reshape((int(ndim/nslices),nslices))
     xion = data[:,44].reshape((int(ndim/nslices),nslices))
     yion = data[:,45].reshape((int(ndim/nslices),nslices))
     
@@ -61,48 +65,67 @@ def Streamer_X(T):
     v = v[nbad:]
     birk = birk[nbad:]
     pedlam = pedlam[nbad:]
+    pedpsi = pedpsi[nbad:]
     hall = hall[nbad:]
     eflux = eflux[nbad:]
+    eavg = eavg[nbad:]
     P = P[nbad:]
     k = k[nbad:]
+    Ne = Ne[nbad:]
+    Tempe = Tempe[nbad:]
     xion = xion[nbad:]
     yion = yion[nbad:]
+    
+    c = 3*10**10
+    me = 511000/c**2
+    e = 1.602*10**(-19)
+    dphi = birk*Re
+    bi = 5*10**4
+    Te = Tempe
+    
+    eavg_para = Te + e*dphi
+    eflux_para = Ne*np.sqrt(Te/(2*np.pi*me))*eavg_para*(bi/bmin - ((bi - bmin)/bmin)*np.exp(-(bmin/(bi - bmin))*e*dphi/Te))
+    
+    eavg_para = eavg_para/1000
+    eflux_para = eflux_para*1.602*10**(-12)*np.where(birk < 0, 1, 0)
+    
+    Robinson = (40*eavg_para/(16 + eavg_para**2))*np.sqrt(eflux_para)
     
     # Plot the RCM-E fields for all slices at the given time step
     plt.figure(1); plt.clf()
     for i in range(nx):
         plt.plot(yion[i,:],k[i,:],label='x = ' + str(xion[i,0]))
-    plt.grid(); plt.ylabel('k'); plt.xlabel(r'$y_i$')
+    plt.grid(); plt.ylabel('K'); plt.xlabel(r'$y_i$')
     plt.title(filein)
     plt.show()
     
     plt.figure(2); plt.clf()
     for i in range(nx):
-        plt.plot(yion[i,:],ftv[i,:],label='x = ' + str(xion[i,0]))
-    plt.grid(); plt.ylabel('ftv'); plt.xlabel(r'$y_i$')
+        plt.plot(yion[i,:],birk[i,:],label='x = ' + str(xion[i,0]))
+    plt.grid(); plt.ylabel(r'$J_\parallel \left[ \mu A/m^2 \right]$'); plt.xlabel(r'$y_i$')
     plt.title(filein)
     plt.show()
     
     plt.figure(3); plt.clf()
     for i in range(nx):
-        plt.plot(yion[i,:],pedlam[i,:],label='x = ' + str(xion[i,0]))
-    plt.grid(); plt.ylabel('pedlam'); plt.xlabel(r'$y_i$')
+        plt.plot(yion[i,:],pedpsi[i,:],label='x = ' + str(xion[i,0]))
+    plt.grid(); plt.ylabel(r'$\Sigma_{\phi \phi,diff} \left[ S \right]$'); plt.xlabel(r'$y_i$')
     plt.title(filein)
     plt.show()
     
     plt.figure(4); plt.clf()
     for i in range(nx):
-        plt.plot(yion[i,:],v[i,:],label='x = ' + str(xion[i,0]))
-    plt.grid(); plt.ylabel('Sqrt brat'); plt.xlabel(r'$y_i$')
+        plt.plot(yion[i,:],eflux[i,:],label='x = ' + str(xion[i,0]))
+    plt.grid(); plt.ylabel(r'$\bar{\Phi}_\parallel \left[ erg/cm^2 s \right]$'); plt.xlabel(r'$y_i$')
     plt.title(filein)
     plt.show()
     
-    # plt.figure(5); plt.clf()
-    # for i in range(nx):
-    #     plt.plot(yion[i,:],hall[i,:],label='x = ' + str(xion[i,0]))
-    # plt.grid(); plt.ylabel('birk'); plt.xlabel(r'$y_i$')
-    # plt.title(filein)
-    # plt.show()
+    plt.figure(5); plt.clf()
+    for i in range(nx):
+        plt.plot(yion[i,:],Robinson[i,:],label='x = ' + str(xion[i,0]))
+    plt.grid(); plt.ylabel(r'$\Sigma_{\phi \phi,mono} \left[ S \right]$'); plt.xlabel(r'$y_i$')
+    plt.title(filein)
+    plt.show()
     
     # Choose X-slice
     try:
@@ -117,24 +140,56 @@ def Streamer_X(T):
     y_array = yion[ix,:]
     ym_array = ymag[ix,:]
     K_array = k[ix,:]
-    Cond_array = pedlam[ix,:]
-    Birk_array = birk[ix,:]
+    Cond0_array = pedpsi[ix,:]
     v_array = v[ix,:]
+    Birk_array = birk[ix,:]
+    # Eflux_array = eflux[ix,:]
+    # Eavg_array = eavg[ix,:]
+    # P_array = P[ix,:]
+    # Ne_array = Ne[ix,:]
+    # Tempe_array = Tempe[ix,:]
+    # Efluxpara_array = eflux_para[ix,:]
+    # Eavgpara_array = eavg_para[ix,:]
+    Robinson_array = Robinson[ix,:]
     
+    def ymag(y):
+        x = np.interp(y,y_array,ym_array)
+        return x
     def K(y):
         x = np.interp(y,y_array,K_array)
         return x
-    def Cond(y):
-        x = np.interp(y,y_array,Cond_array)
+    def Cond0(y):
+        x = np.interp(y,y_array,Cond0_array)
         return x
-    def ymag(y):
-        x = np.interp(y,y_array,ym_array)
+    def RCMpot(y):
+        x = np.interp(y,y_array,v_array)
         return x
     def Birk(y):
         x = np.interp(y,y_array,Birk_array)
         return x
-    def RCMpot(y):
-        x = np.interp(y,y_array,v_array)
+    # def Eflux(y):
+    #     x = np.interp(y,y_array,Eflux_array)
+    #     return x
+    # def Eavg(y):
+    #     x = np.interp(y,y_array,Eavg_array)
+    #     return x
+    # def P(y):
+    #     x = np.interp(y,y_array,P_array)
+    #     return x
+    # def Ne(y):
+    #     x = np.interp(y,y_array,Ne_array)
+    #     return x
+    # def Tempe(y):
+    #     x = np.interp(y,y_array,Tempe_array)
+    #     return x
+    # def Eflux_para(y):
+    #     x = np.interp(y,y_array,Efluxpara_array)
+    #     return x
+    # def Eavg_para(y):
+    #     x = np.interp(y,y_array,Eavgpara_array)
+    #     return x
+    def CondEnhance(y):
+        x = np.interp(y,y_array,Robinson_array)
         return x
     
     plt.figure(6); plt.clf()
@@ -144,14 +199,8 @@ def Streamer_X(T):
     plt.show()
     
     plt.figure(7); plt.clf()
-    plt.plot(y_array,Cond_array)
-    plt.grid(); plt.ylabel(r'$\Sigma(y)$'); plt.xlabel(r'$y$')
-    plt.title(r'Pedersen Conductivity at $T = $' + str(T) + ' and $X = $' + str(xs))
-    plt.show()
-    
-    plt.figure(8); plt.clf()
     plt.plot(y_array,Birk_array)
-    plt.grid(); plt.ylabel(r'$Birk(y) \, \left( \mu A / m^2 \right)$'); plt.xlabel(r'$y$')
+    plt.grid(); plt.ylabel(r'$J_\parallel(y) \, \left( \mu A / m^2 \right)$'); plt.xlabel(r'$y$')
     plt.title(r'Birkeland Currents at $T = $' + str(T) + ' and $X = $' + str(xs))
     plt.show()
     
@@ -164,9 +213,11 @@ def Streamer_X(T):
     dm = ymag(yfnew) - ymag(y0new)
     
     Knew = K(ynew)
-    Cond_array = Cond(ynew)
+    Cond0_array = Cond0(ynew)
     Birk_array = Birk(ynew)
     RCMpot_array = RCMpot(ynew)
+    CondEnhance_array = CondEnhance(ynew)
+    Condtot_array = Cond0_array + CondEnhance_array
     
     # Rescale and shift y-axis to create r-axis
     Kmin = np.min(Knew)
@@ -180,6 +231,7 @@ def Streamer_X(T):
     
     # Plot alongside analytical profiles and fix parameters
     # Entropy (fixes K0, xi, eta, d)
+    
     K0 = np.max(Knew)
     
     r0 = rnew[0]
@@ -204,7 +256,7 @@ def Streamer_X(T):
         x = K0 * np.piecewise(r, [r < r0, np.logical_and(r >= r0, r < 0), np.logical_and(r >= 0, r < 1), r >= 1], [lambda r: 1, lambda r: KL(r), lambda r: KR(r), lambda r: 1])
         return x
     
-    plt.figure(10); plt.clf()
+    plt.figure(8); plt.clf()
     plt.plot(rnew,Knew,'b-',label = 'RCM-E')
     plt.plot(r_array,Kanalytic(r_array),'r-',label = 'Analytic')
     plt.legend(); plt.grid('on'); plt.ylabel(r'$K(r)$'); plt.xlabel(r'$r$')
@@ -212,18 +264,16 @@ def Streamer_X(T):
     plt.show()
     
     # Pedersen conductivity (fixes sigma)
-    plt.figure(11); plt.clf()
-    plt.plot(r_array,Cond_array,'b-')
-    plt.grid('on'); plt.ylabel(r'$\Sigma(r)$'); plt.xlabel(r'$r$')
-    plt.title(r'Conductivity Profile at $x_s$ = ' + str(xs))
-    plt.show()
     
-    try:
-        Sigma0 = float(input('Please enter the conductivity value corresponding to the flat region (or minimum conductivity): '))
-    except:
-        print('Wrong input. Please enter a number ...')
+    # Sigma0 = np.average(Cond0_array)
+    Sigma0 = 12
     
-    Sigmamax = np.max(Cond_array)
+    # try:
+    #     Sigma0 = float(input('Please enter the conductivity value corresponding to the flat region (or minimum conductivity): '))
+    # except:
+    #     print('Wrong input. Please enter a number ...')
+    
+    Sigmamax = np.max(Condtot_array)
     sigma = (Sigmamax - Sigma0)/Sigma0
     
     def Cond(r):
@@ -234,17 +284,11 @@ def Streamer_X(T):
         x = Sigma0 * np.piecewise(r, [r < 0, np.logical_and(r >= 0, r < 1), r >= 1], [lambda r: 1, lambda r: Cond(r), lambda r: 1])
         return x
     
-    plt.figure(12); plt.clf()
-    plt.plot(r_array,Cond_array,'b-',label = 'RCM-E')
+    plt.figure(9); plt.clf()
+    plt.plot(r_array,Condtot_array,'b-',label = 'RCM-E')
     plt.plot(r_array,Condanalytic(r_array),'r-', label = 'Analytic')
     plt.legend(); plt.grid('on'); plt.ylabel(r'$\Sigma(r)$'); plt.xlabel(r'$r$')
     plt.title(r'Conductivity Profile at $x_s$ = ' + str(xs))
-    plt.show()
-    
-    plt.figure(13); plt.clf()
-    plt.plot(r_array,Birk_array,'b-',label = 'RCM-E')
-    plt.legend(); plt.grid('on'); plt.ylabel(r'$Birk(r)$'); plt.xlabel(r'$r$')
-    plt.title(r'Birkeland Current Profile at $x_s$ = ' + str(xs))
     plt.show()
 
     return xs, d, K0, xi, eta, Sigma0, sigma, dyg, dm, Birk_array, RCMpot_array

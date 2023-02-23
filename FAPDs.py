@@ -15,8 +15,11 @@ try:
 except:
     print('Wrong input. Please enter a number ...')
 
-xs, d, K0, xi, eta, Sigma0, sigma, dyg, dm, Birk_array, RCMpot_array = sx.Streamer_X(T)
-Scos, ys = sy.Streamer_Y(T,xs)
+# Pick a field-aligned resistivity for eflux/enhancement calculations.  Default is 2500 M\Omega m^2.
+Re = 2500
+
+xs, d, K0, xi, eta, Sigma0, sigma, dyg, dm, Birk_array, RCMpot_array = sx.Streamer_X(T,Re)
+Scos, ys = sy.Streamer_Y(T,xs,Re)
 
 print('(xs,ys) = (' + str(xs) + ',' + str(ys) + ')')
 print('The streamer width d = ' + str(d) + 'R_E')
@@ -46,7 +49,6 @@ R0 = (d**2)/Sigma0
 J0 = Phi0/R0
 E0amp = Phi0/dyg
 
-# FACs should be ~< 25 \muA/m^2
 # PCP ~ 50 kV
 # FAPD should be ~ 1-10 kV
 # Magnetospheric field should be ~ 1-10 mV/m
@@ -59,15 +61,14 @@ E0amp = Phi0/dyg
 # v_BBF ~ 300-400 km/s
 # v_str ~ 1 km/s
 
-
 # automate slice selection to match to RCM potential drop
 
 # solve phi equation first, make contour plot, determine direction and magnitude of field?
 
-print('The dimensions for potential are',Phi0/1000,'kV.')
-print('The dimensions for ionospheric electric field are',E0amp*1000,'mV / m.')
-print('The dimensions for current density are',J0*(10**6),'\mu A / m^2.')
-print('The dimensions for resistivity are',R0/10**6,'M \Omega m^2.')
+# print('The dimensions for potential are',Phi0/1000,'kV.')
+# print('The dimensions for ionospheric electric field are',E0amp*1000,'mV / m.')
+# print('The dimensions for current density are',J0*(10**6),'\mu A / m^2.')
+# print('The dimensions for resistivity are',R0/10**6,'M \Omega m^2.')
 
 # Define geometry
 r_xi = (xi-1)/xi
@@ -133,8 +134,6 @@ plt.plot(r_array,2*Birk_array,'b-',label = 'RCM-E')
 plt.legend(); plt.grid('on'); plt.ylabel(r'$J_\parallel(r) \ \ (\ \mu A \, / m^2)$'); plt.xlabel('r')
 plt.title('Field-Aligned Current')
 
-
-
 # Use adaptive Runge-Kutta to solve for ionospheric electric field. Prime ' is r-derivative:
 
 # Solver for ionospheric electric field
@@ -161,7 +160,8 @@ plt.grid('on')
 
 # Compute FAPD
 
-R = (1/R0)*(10**6)*np.float(input('Enter the resistivity (in M\Omega m^2): '))
+# R = (1/R0)*(10**6)*np.float(input('Enter the resistivity (in M\Omega m^2): '))
+R = 2500/R0*(10**6)
 
 Jplot = J(rplot)
 
@@ -179,11 +179,11 @@ def k(r):
 
 GradJplot = Grad_J(rplot)*np.where(Jplot < 0, 1, 0)
 
-plt.figure(6); plt.clf()
-plt.plot(rplot,E0amp*R*GradJplot/1000,'b-')
-plt.ylabel(r'$\Delta \Phi(r) \, (kV)$'); plt.xlabel('r')
-plt.title("\n".join(wrap('Field-Aligned Potential Drop at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
-plt.grid('on')
+# plt.figure(6); plt.clf()
+# plt.plot(rplot,E0amp*R*GradJplot/1000,'b-')
+# plt.ylabel(r'$\Delta \Phi(r) \, (kV)$'); plt.xlabel('r')
+# plt.title("\n".join(wrap('Field-Aligned Potential Drop at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
+# plt.grid('on')
 
 # Compute magnetospheric electric field
 
