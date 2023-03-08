@@ -19,7 +19,7 @@ def Streamer_X(T,Re):
     ndim = xion.size
     
     xmag = data[:,6].reshape((int(ndim/nslices),nslices))
-    ymag = data[:,7].reshape((int(ndim/nslices),nslices))
+    ymag = - data[:,7].reshape((int(ndim/nslices),nslices))
     vm = data[:,8].reshape((int(ndim/nslices),nslices))
     ftv = data[:,9].reshape((int(ndim/nslices),nslices))
     bmin = data[:,10].reshape((int(ndim/nslices),nslices))
@@ -35,7 +35,7 @@ def Streamer_X(T,Re):
     Ne = data[:,24].reshape((int(ndim/nslices),nslices))
     Tempe = data[:,25].reshape((int(ndim/nslices),nslices))
     xion = data[:,44].reshape((int(ndim/nslices),nslices))
-    yion = data[:,45].reshape((int(ndim/nslices),nslices))
+    yion = - data[:,45].reshape((int(ndim/nslices),nslices))
     
     # xmag = data[:,6].reshape((int(ndim/nslices),nslices))
     # ymag = data[:,7].reshape((int(ndim/nslices),nslices))
@@ -217,7 +217,7 @@ def Streamer_X(T,Re):
     Birk_array = Birk(ynew)
     RCMpot_array = RCMpot(ynew)
     CondEnhance_array = CondEnhance(ynew)
-    Condtot_array = Cond0_array + CondEnhance_array
+    Condtot_array = Cond0_array*np.where(Birk_array > 0, 1, 0) + 12*np.where(Birk_array < 0, 1, 0) + CondEnhance_array
     
     # Rescale and shift y-axis to create r-axis
     Kmin = np.min(Knew)
@@ -273,7 +273,7 @@ def Streamer_X(T,Re):
     # except:
     #     print('Wrong input. Please enter a number ...')
     
-    Sigmamax = np.max(Condtot_array)
+    Sigmamax = np.max(Condtot_array*np.where(Birk_array < 0, 1, 0))
     sigma = (Sigmamax - Sigma0)/Sigma0
     
     def Cond(r):

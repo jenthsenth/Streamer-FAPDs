@@ -18,7 +18,7 @@ def Streamer_Y(T,xs,Re):
     ndim = yion.size
     
     xmag = data[:,6].reshape((int(ndim/nslices),nslices))
-    ymag = data[:,7].reshape((int(ndim/nslices),nslices))
+    ymag = - data[:,7].reshape((int(ndim/nslices),nslices))
     vm = data[:,8].reshape((int(ndim/nslices),nslices))
     ftv = data[:,9].reshape((int(ndim/nslices),nslices))
     bmin = data[:,10].reshape((int(ndim/nslices),nslices))
@@ -34,7 +34,7 @@ def Streamer_Y(T,xs,Re):
     Ne = data[:,24].reshape((int(ndim/nslices),nslices))
     Tempe = data[:,25].reshape((int(ndim/nslices),nslices))
     xion = data[:,44].reshape((int(ndim/nslices),nslices))
-    yion = data[:,45].reshape((int(ndim/nslices),nslices))
+    yion = - data[:,45].reshape((int(ndim/nslices),nslices))
     
     # xmag = data[:,6].reshape((int(ndim/nslices),nslices))
     # ymag = data[:,7].reshape((int(ndim/nslices),nslices))

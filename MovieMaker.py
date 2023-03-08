@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 #     ndim = blah.size
     
 #     xmag = data[:,6].reshape((int(ndim/nslices),nslices))
-#     ymag = data[:,7].reshape((int(ndim/nslices),nslices))
+#     ymag = - data[:,7].reshape((int(ndim/nslices),nslices))
 #     vm = data[:,8].reshape((int(ndim/nslices),nslices))
 #     ftv = data[:,9].reshape((int(ndim/nslices),nslices))
 #     bmin = data[:,10].reshape((int(ndim/nslices),nslices))
@@ -43,7 +43,7 @@ import matplotlib.pyplot as plt
 #     Pi = data[:,30].reshape((int(ndim/nslices),nslices))
 #     ki = data[:,31].reshape((int(ndim/nslices),nslices))
 #     xion = data[:,44].reshape((int(ndim/nslices),nslices))
-#     yion = data[:,45].reshape((int(ndim/nslices),nslices))
+#     yion = - data[:,45].reshape((int(ndim/nslices),nslices))
 #     brat = data[:,51].reshape((int(ndim/nslices),nslices))
 #     edistrat = data[:,52].reshape((int(ndim/nslices),nslices))
 #     btotrat = data[:,57].reshape((int(ndim/nslices),nslices))
@@ -105,7 +105,7 @@ while T < 31:
     ndim = yion.size
     
     xmag = data[:,6].reshape((int(ndim/nslices),nslices))
-    ymag = data[:,7].reshape((int(ndim/nslices),nslices))
+    ymag = - data[:,7].reshape((int(ndim/nslices),nslices))
     vm = data[:,8].reshape((int(ndim/nslices),nslices))
     ftv = data[:,9].reshape((int(ndim/nslices),nslices))
     bmin = data[:,10].reshape((int(ndim/nslices),nslices))
@@ -127,7 +127,7 @@ while T < 31:
     Pi = data[:,30].reshape((int(ndim/nslices),nslices))
     ki = data[:,31].reshape((int(ndim/nslices),nslices))
     xion = data[:,44].reshape((int(ndim/nslices),nslices))
-    yion = data[:,45].reshape((int(ndim/nslices),nslices))
+    yion = - data[:,45].reshape((int(ndim/nslices),nslices))
     brat = data[:,51].reshape((int(ndim/nslices),nslices))
     edistrat = data[:,52].reshape((int(ndim/nslices),nslices))
     btotrat = data[:,57].reshape((int(ndim/nslices),nslices))
