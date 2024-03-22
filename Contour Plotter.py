@@ -18,7 +18,7 @@ while T < 31:
     ndim = blah.size
     
     xmag = data[:,6].reshape((int(ndim/nslices),nslices))
-    ymag = - data[:,7].reshape((int(ndim/nslices),nslices))
+    ymag = data[:,7].reshape((int(ndim/nslices),nslices))
     vm = data[:,8].reshape((int(ndim/nslices),nslices))
     ftv = data[:,9].reshape((int(ndim/nslices),nslices))
     bmin = data[:,10].reshape((int(ndim/nslices),nslices))
@@ -41,7 +41,7 @@ while T < 31:
     Pi = data[:,30].reshape((int(ndim/nslices),nslices))
     ki = data[:,31].reshape((int(ndim/nslices),nslices))
     xion = data[:,44].reshape((int(ndim/nslices),nslices))
-    yion = - data[:,45].reshape((int(ndim/nslices),nslices))
+    yion = data[:,45].reshape((int(ndim/nslices),nslices))
     brat = data[:,51].reshape((int(ndim/nslices),nslices))
     edistrat = data[:,52].reshape((int(ndim/nslices),nslices))
     btotrat = data[:,57].reshape((int(ndim/nslices),nslices))
@@ -99,16 +99,16 @@ while T < 31:
     
     # Plot the RCM-E fields for all slices at the given time step
     
-    field = Robinson
+    field = k
     X, Y = np.meshgrid(yion, xion)
     fig,ax=plt.subplots(1,1)
     cp = ax.contourf(X, Y, field)
     fig.colorbar(cp) # Add a colorbar to a plot
-    ax.set_title('Conductance Enhancement at T = '+str(T))
+    ax.set_title('Ionospheric Entropy at T = '+str(T))
     ax.set_ylabel(r'$x_i$')
     ax.set_xlabel(r'$y_i$')
     
-    # calc index of min/max Z value
+    # # calc index of min/max Z value
     xmin, ymin = np.unravel_index(np.argmin(field), field.shape)
     xmax, ymax = np.unravel_index(np.argmax(field), field.shape)
     

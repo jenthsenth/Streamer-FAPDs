@@ -179,11 +179,11 @@ def k(r):
 
 GradJplot = Grad_J(rplot)*np.where(Jplot < 0, 1, 0)
 
-# plt.figure(6); plt.clf()
-# plt.plot(rplot,E0amp*R*GradJplot/1000,'b-')
-# plt.ylabel(r'$\Delta \Phi(r) \, (kV)$'); plt.xlabel('r')
-# plt.title("\n".join(wrap('Field-Aligned Potential Drop at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
-# plt.grid('on')
+plt.figure(6); plt.clf()
+plt.plot(rplot,E0amp*R*GradJplot/1000,'b-')
+plt.ylabel(r'$\Delta \Phi(r) \, (kV)$'); plt.xlabel('r')
+plt.title("\n".join(wrap('Field-Aligned Potential Drop at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
+plt.grid('on')
 
 # Compute magnetospheric electric field
 
@@ -194,6 +194,41 @@ plt.plot(rplot,ratio*E0amp*Emplot*1000,'r-')
 plt.ylabel(r'$E_m(r) \ (mV/m)$'); plt.xlabel('r')
 plt.title("\n".join(wrap('Magnetospheric Electric Field at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
 plt.grid('on')
+
+
+
+
+
+
+
+
+
+
+# plt.figure(7); plt.clf()
+# plt.plot(rplot,E0amp*Eplot*1000,'b-')
+# plt.plot(rplot,ratio*E0amp*Emplot*1000,'r-')
+# plt.ylabel(r'$E(r) \ (mV/m)$'); plt.xlabel('r')
+# plt.legend(['Ei', 'Em'])
+# plt.title("\n".join(wrap('Electric Fields at T = ' + str(T) + r' for Resistivity $R$ = ' + str(R*R0/10**6) + r' $M\Omega \, m^2$',60)))
+# plt.grid('on')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Compute potentials
 

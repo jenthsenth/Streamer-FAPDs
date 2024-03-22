@@ -19,7 +19,7 @@ def Streamer_X(T,Re):
     ndim = xion.size
     
     xmag = data[:,6].reshape((int(ndim/nslices),nslices))
-    ymag = - data[:,7].reshape((int(ndim/nslices),nslices))
+    ymag = data[:,7].reshape((int(ndim/nslices),nslices))
     vm = data[:,8].reshape((int(ndim/nslices),nslices))
     ftv = data[:,9].reshape((int(ndim/nslices),nslices))
     bmin = data[:,10].reshape((int(ndim/nslices),nslices))
@@ -35,7 +35,7 @@ def Streamer_X(T,Re):
     Ne = data[:,24].reshape((int(ndim/nslices),nslices))
     Tempe = data[:,25].reshape((int(ndim/nslices),nslices))
     xion = data[:,44].reshape((int(ndim/nslices),nslices))
-    yion = - data[:,45].reshape((int(ndim/nslices),nslices))
+    yion = data[:,45].reshape((int(ndim/nslices),nslices))
     
     # xmag = data[:,6].reshape((int(ndim/nslices),nslices))
     # ymag = data[:,7].reshape((int(ndim/nslices),nslices))
@@ -127,6 +127,13 @@ def Streamer_X(T,Re):
     plt.title(filein)
     plt.show()
     
+    plt.figure(6); plt.clf()
+    for i in range(nx):
+        plt.plot(yion[i,:],vm[i,:],label='x = ' + str(xion[i,0]))
+    plt.grid(); plt.ylabel(r'$vm$'); plt.xlabel(r'$y_i$')
+    plt.title(filein)
+    plt.show()
+    
     # Choose X-slice
     try:
         ix = int(input('Enter your X-slice: ')) - 1
@@ -192,13 +199,13 @@ def Streamer_X(T,Re):
         x = np.interp(y,y_array,Robinson_array)
         return x
     
-    plt.figure(6); plt.clf()
+    plt.figure(7); plt.clf()
     plt.plot(y_array,K_array)
     plt.grid(); plt.ylabel(r'$K(y)$'); plt.xlabel(r'$y$')
     plt.title(r'Entropy at $T = $' + str(T) + ' and $X = $' + str(xs))
     plt.show()
     
-    plt.figure(7); plt.clf()
+    plt.figure(8); plt.clf()
     plt.plot(y_array,Birk_array)
     plt.grid(); plt.ylabel(r'$J_\parallel(y) \, \left( \mu A / m^2 \right)$'); plt.xlabel(r'$y$')
     plt.title(r'Birkeland Currents at $T = $' + str(T) + ' and $X = $' + str(xs))
@@ -256,7 +263,7 @@ def Streamer_X(T,Re):
         x = K0 * np.piecewise(r, [r < r0, np.logical_and(r >= r0, r < 0), np.logical_and(r >= 0, r < 1), r >= 1], [lambda r: 1, lambda r: KL(r), lambda r: KR(r), lambda r: 1])
         return x
     
-    plt.figure(8); plt.clf()
+    plt.figure(9); plt.clf()
     plt.plot(rnew,Knew,'b-',label = 'RCM-E')
     plt.plot(r_array,Kanalytic(r_array),'r-',label = 'Analytic')
     plt.legend(); plt.grid('on'); plt.ylabel(r'$K(r)$'); plt.xlabel(r'$r$')
@@ -284,7 +291,7 @@ def Streamer_X(T,Re):
         x = Sigma0 * np.piecewise(r, [r < 0, np.logical_and(r >= 0, r < 1), r >= 1], [lambda r: 1, lambda r: Cond(r), lambda r: 1])
         return x
     
-    plt.figure(9); plt.clf()
+    plt.figure(10); plt.clf()
     plt.plot(r_array,Condtot_array,'b-',label = 'RCM-E')
     plt.plot(r_array,Condanalytic(r_array),'r-', label = 'Analytic')
     plt.legend(); plt.grid('on'); plt.ylabel(r'$\Sigma(r)$'); plt.xlabel(r'$r$')

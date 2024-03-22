@@ -127,12 +127,12 @@ def Streamer_Y(T,xs,Re):
     # plt.title(filein)
     # plt.show()
     
-    # plt.figure(6); plt.clf()
-    # for i in range(ny):
-    #     plt.plot(xion[:,i],Robinson[:,i],label='x = ' + str(yion[0,i]))
-    # plt.grid(); plt.ylabel(r'$\Sigma_{\phi \phi,mono} \left[ S \right]$'); plt.xlabel(r'$y_i$')
-    # plt.title(filein)
-    # plt.show()
+    plt.figure(6); plt.clf()
+    for i in range(ny):
+        plt.plot(xion[:,i],vm[:,i],label='x = ' + str(yion[0,i]))
+    plt.grid(); plt.ylabel(r'$vm$'); plt.xlabel(r'$y_i$')
+    plt.title(filein)
+    plt.show()
     
     # Choose Y-slice
     try:
